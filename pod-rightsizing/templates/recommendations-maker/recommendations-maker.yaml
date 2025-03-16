@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "recommendations-maker.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "recommendations-maker.name" . }}
+    {{- include "autopilot.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "recommendations-maker.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "recommendations-maker.name" . }}
+    spec:
+      containers:
+        - name: recommendations-maker
+          image: {{ .Values.registry }}{{ .Values.recommendationsMaker.image.name }}:{{ .Values.recommendationsMaker.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
+          env:
+            - name: CM_NAME
+              value: {{ include "kompass-pod-rightsizing-config.name" . }}
+            - name: CM_NAMESPACE
+              value: {{ .Release.Namespace }}
+          volumeMounts:
+            - mountPath: /recommendations-data
+              name: recommendations-storage
+          resources:
+            requests:
+              cpu: 200m
+              memory: 128Mi
+      volumes:
+        - name: recommendations-storage
+          emptyDir: {}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "pod-rightsizing.serviceAccountName" . }}

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kompass-pod-rightsizing-config.name" . }}
+  namespace: {{ .Release.Namespace }}
+data:
+    recommendationsInterval: '30m'
+    cooldownPeriod: {{ if .Values.tests.dev_env }}'20m'{{ else }}'120m'{{ end }}
+    cooldownBetweenActions: '2m'
+    dataCoveragePercentage: {{ if .Values.tests.dev_env }}'10'{{ else }}'80'{{ end }}
+    lookbackPeriod: {{ if .Values.tests.dev_env }}'1h'{{ else }}'1d'{{ end }}
+
+    memoryImpactPercentage: '10'
+    minimumMemoryStepForScaleUp: {{ if .Values.tests.dev_env }}'16Mi'{{ else }}'256Mi'{{ end }}
+    minimumMemoryValueForScaleDown: {{ if .Values.tests.dev_env }}'16Mi'{{ else }}'256Mi'{{ end }}
+    
+    cpuImpactPercentage: '10'
+    minimumCPUStepForScaleUp: {{ if .Values.tests.dev_env }}'10m'{{ else }}'100m'{{ end }}
+    minimumCPUValueForScaleDown: '10m'
+ 
+    hpaThresholdCpuLimit: "0.9"
+    hpaThresholdCpuRequest: "1.1"
+    hpaThresholdMemoryLimit: "0.8"
+    hpaThresholdMemoryRequest: "1"
+  
+    hpaMaxValue: '200'
+    hpaMinValue: '70'
+
+    ignoreCPUThrottlingEvent: 'false'
+    ignoreOOMEvent: 'false'
+
+    failedActionRetriesAmount: '1'
+
+    buffers: |
+        - name: Default
+          buffer: 0.2
+        - name: Conservative
+          buffer: 0.3
+        - name: Aggressive
+          buffer: 0.2
+    
+    throttlingRollbackTimeRange: |
+      from: "20m"
+      to: "120m"

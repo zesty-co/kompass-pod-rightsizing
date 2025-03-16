@@ -1,0 +1,131 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: autopilotconfigs.kompass.zesty.co
+spec:
+  group: kompass.zesty.co
+  names:
+    kind: AutopilotConfig
+    listKind: AutopilotConfigList
+    plural: autopilotconfigs
+    shortNames:
+    - pilotconfig
+    - apc
+    - pconfig
+    - autopilotconfigs
+    - pilotconfigs
+    singular: autopilotconfig
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: AutopilotConfig is the Schema for the apps API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AutopilotConfigSpec defines the desired state of AutopilotConfig.
+            properties:
+              appList:
+                description: |-
+                  Defines the application that this configuration should work on
+                  By default should contain ALL APPLICATION IN CLUSTER + ALL FUTURE DEPLOYED APPS
+                  For MVP - All Apps except kube-system namespace
+                items:
+                  properties:
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                    namespace:
+                      type: string
+                  required:
+                  - kind
+                  - name
+                  - namespace
+                  type: object
+                type: array
+              cooldownPeriod:
+                description: |-
+                  A.K.A MinInterval (in minutes)
+                  Rollback OR scale up will be orchestrated anyway to avoid outages
+                  Should be hidden from the user at first phase?
+                format: int64
+                type: integer
+              dataCoverage:
+                description: |-
+                  Amount of data from lookback period until we can start to orchestrate
+                  Should be hidden from the user at first phase?
+                type: number
+              ignoreCPUThrottlingEvent:
+                description: Should be hidden from the user at first phase?
+                type: boolean
+              ignoreOOMEvent:
+                description: Should be hidden from the user at first phase?
+                type: boolean
+              metrics:
+                properties:
+                  cpu:
+                    properties:
+                      buffer:
+                        description: The buffer we keep on top of the usage
+                        type: number
+                      metricStrategy:
+                        description: Defines the aggressiveness level of the configuration
+                          [Default / Agrressive / Conservative <- default]
+                        type: string
+                    type: object
+                  memory:
+                    properties:
+                      buffer:
+                        description: The buffer we keep on top of the usage
+                        type: number
+                      metricStrategy:
+                        description: Defines the aggressiveness level of the configuration
+                          [Default / Agrressive / Conservative <- default]
+                        type: string
+                    type: object
+                type: object
+              minimumImpact:
+                description: |-
+                  Do not orchestrate if it won't gain at least 10% of saving on this workload
+                  Should be hidden from the user at first phase?
+                type: number
+              priority:
+                description: |-
+                  Defines the priority of this configuration in comparison to other configurations
+                  Should be hidden from the user at first phase?
+                format: int64
+                type: integer
+            type: object
+          status:
+            description: AutopilotConfigStatus defines the observed state of AutopilotConfig.
+            properties:
+              active:
+                description: Define if this configuration is active or not
+                type: boolean
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -1,0 +1,158 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: actions.kompass.zesty.co
+spec:
+  group: kompass.zesty.co
+  names:
+    kind: Action
+    listKind: ActionList
+    plural: actions
+    singular: action
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Action Type
+      jsonPath: .spec.actionType
+      name: Type
+      type: string
+    - description: Status
+      jsonPath: .status.phase
+      name: Status
+      type: string
+    - description: Updated At
+      jsonPath: .status.updateTimestamp
+      name: Updated At
+      type: date
+    - description: Last Execution At
+      jsonPath: .status.executionTimestamp
+      name: Last Execution
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: Action is the Schema for the actions API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ActionSpec defines the desired state of Action.
+            properties:
+              actionType:
+                description: ActionKind describes the reason for this action
+                enum:
+                - Orchestration
+                - Rollback
+                type: string
+              priority:
+                format: int64
+                type: integer
+              workload:
+                properties:
+                  containers:
+                    items:
+                      properties:
+                        desiredCPU:
+                          type: number
+                        desiredMemory:
+                          format: int64
+                          type: integer
+                        initialCPU:
+                          type: number
+                        initialMemory:
+                          format: int64
+                          type: integer
+                        limitCPU:
+                          type: number
+                        limitMemory:
+                          format: int64
+                          type: integer
+                        name:
+                          type: string
+                        requestCPU:
+                          type: number
+                        requestMemory:
+                          format: int64
+                          type: integer
+                      type: object
+                    type: array
+                  hpa:
+                    properties:
+                      currentCpuUtilization:
+                        format: int32
+                        type: integer
+                      currentMaxReplica:
+                        format: int32
+                        type: integer
+                      currentMemoryUtilization:
+                        format: int32
+                        type: integer
+                      currentMinReplica:
+                        format: int32
+                        type: integer
+                      desiredCpuUtilization:
+                        format: int32
+                        type: integer
+                      desiredMaxReplica:
+                        format: int32
+                        type: integer
+                      desiredMemoryUtilization:
+                        format: int32
+                        type: integer
+                      desiredMinReplica:
+                        format: int32
+                        type: integer
+                      initialCpuUtilization:
+                        format: int32
+                        type: integer
+                      initialMemoryUtilization:
+                        format: int32
+                        type: integer
+                    type: object
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                type: object
+            type: object
+          status:
+            description: ActionStatus defines the observed state of Action.
+            properties:
+              executionTimestamp:
+                format: date-time
+                type: string
+              phase:
+                description: ActionPhase describes the available phases for tracking
+                enum:
+                - Pending
+                - InProgress
+                - Completed
+                - Failed
+                type: string
+              updateTimestamp:
+                format: date-time
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

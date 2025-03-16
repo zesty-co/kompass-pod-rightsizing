@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: victoriametrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: victoriametrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: victoriametrics
+  template:
+    metadata:
+      labels:
+        app: victoriametrics
+    spec:
+      containers:
+      - name: victoriametrics
+        image: victoriametrics/victoria-metrics:v1.112.0
+        args:
+        - -retentionPeriod=1w
+        - -storageDataPath=/victoria-metrics-data
+        - -search.maxStalenessInterval=5m
+        - -search.minStalenessInterval=30s
+        ports:
+        - containerPort: 8428
+        volumeMounts:
+        - name: vm-data
+          mountPath: /victoria-metrics-data
+  volumeClaimTemplates:
+  - metadata:
+      name: vm-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ebs-sc
+      resources:
+        requests:
+          storage: 10Gi
+
