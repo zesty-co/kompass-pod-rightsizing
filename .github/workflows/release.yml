@@ -30,7 +30,7 @@ jobs:
         run: |
           helm repo add kube-state-metrics https://prometheus-community.github.io/helm-charts
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add cert-manager https://grafana.github.io/helm-charts
+          helm repo add cert-manager https://charts.jetstack.io
 
       - name: Run helm release
         uses: helm/chart-releaser-action@v1.6.0
