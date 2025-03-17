@@ -39,4 +39,3 @@ jobs:
         with:
           pages_branch: gh-pages
           charts_dir: charts
-          packages_with_index: true
