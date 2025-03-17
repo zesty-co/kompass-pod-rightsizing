@@ -1,0 +1,26 @@
+apiVersion: v1
+entries:
+  pod-rightsizing:
+  - apiVersion: v2
+    created: "2025-03-17T15:22:25.621066265Z"
+    dependencies:
+    - condition: kube-state-metrics.enabled
+      name: kube-state-metrics
+      repository: https://prometheus-community.github.io/helm-charts
+      version: '>=5.28.0'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 8.10.4
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: '>=1.16.3'
+    description: A Helm chart for Kubernetes
+    digest: a0635d460a161ac84cca9df372c2111766af6143efd7efe67d538bcd0a8433bf
+    name: pod-rightsizing
+    type: application
+    urls:
+    - https://github.com/zesty-co/kompass-pod-rightsizing/releases/download/pod-rightsizing-0.1.0/pod-rightsizing-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-03-17T15:22:25.621074661Z"
