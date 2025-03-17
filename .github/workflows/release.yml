@@ -37,6 +37,6 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          pages_branch: main
+          pages_branch: gh-pages
           charts_dir: charts
           packages_with_index: true
