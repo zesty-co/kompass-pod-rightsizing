@@ -4,7 +4,7 @@ metadata:
   labels:
     control-plane: controller-manager
     app.kubernetes.io/name: pod-rightsizing
-    {{- include "autopilot.labels" . | nindent 4 }}
+    {{- include "pod-rightsizing.labels" . | nindent 4 }}
   name: {{ include "action-taker.name" . }}
   namespace: {{ .Release.Namespace }}
 spec:

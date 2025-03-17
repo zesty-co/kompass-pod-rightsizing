@@ -1,0 +1,21 @@
+apiVersion: kompass.zesty.co/v1
+kind: AutopilotConfig
+metadata:
+  name: default-pod-rightsizing-config
+  annotations:
+    "helm.sh/hook": "post-install,post-upgrade"
+    "helm.sh/hook-weight": "10"
+spec:
+  cooldownPeriod: 120
+  dataCoverage: 0.8
+  ignoreCPUThrottlingEvent: false
+  ignoreOOMEvent: false
+  metrics:
+    cpu:
+      buffer: 0.2
+      metricStrategy: Default
+    memory:
+      buffer: 0.3
+      metricStrategy: Default
+  minimumImpact: 0.1
+  priority: 100

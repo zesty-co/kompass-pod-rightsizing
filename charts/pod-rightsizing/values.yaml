@@ -1,0 +1,58 @@
+nameOverride: ""
+fullnameOverride: ""
+imagePullPolicy : "Always"
+registry: 473301030746.dkr.ecr.us-west-2.amazonaws.com
+
+serviceAccount:
+  name: "zesty-kompass-rightsizing"
+
+actionTaker:
+  name: "action-taker"
+  image:
+    name: "/pod-rightsizing/action-taker"
+    tag: "latest"
+
+recommendationsMaker:
+  name: "recommendations-maker"
+  image:
+    name: "/pod-rightsizing/recommendations-maker"
+    tag: "latest"
+  port: 8088
+
+podRightsizingConfig:
+  name: ""
+
+cert-manager:
+  enabled: true
+  # namespace: cert-manager
+  crds:
+    enabled: true
+
+kube-state-metrics:
+  enabled: true
+  fullnameOverride: zesty-kompass-pod-rightsizing-kube-state-metrics
+  # namespaceOverride: monitoring
+  extraArgs:
+    - --metric-annotations-allowlist=pods=[*]
+
+grafana:
+  enabled: true
+  # namespace: monitoring
+  fullnameOverride: "zesty-kompass-pod-rightsizing-grafana"
+  deployDataSource: true
+  deployDashboard: true
+  persistence:
+    enabled: true
+    type: "statefulset"
+    size: 1Gi
+  # Use ConfigMaps for datasources and dashboards
+  sidecar:
+    datasources:
+      enabled: true
+      label: grafana_datasource
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+  # Add admin credentials configuration
+  adminUser: admin
+  adminPassword: password  # You should change this to a secure password
