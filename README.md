@@ -2,37 +2,47 @@
 
 ## Overview
 
-Autopilot is a Kubernetes resource optimization solution that helps with pod rightsizing. It consists of two main components:
+Kompass Pod-Rightsizing is a Kubernetes resource optimization solution that helps with pod rightsizing. It consists of two main components:
 
 1. **Recommendations Maker**: Analyzes resource usage patterns and generates optimization recommendations
 2. **Action Taker**: Implements the recommendations by adjusting resource allocations
 
-The solution integrates with Prometheus metrics (via kube-state-metrics) to make data-driven decisions about resource optimization.
+The solution integrates with Victoria Metrics (via kube-state-metrics) to make data-driven decisions about resource optimization.
 
 ## Architecture
 
-Autopilot works by:
+Kompass Pod-Rightsizing works by:
 1. Collecting metrics from your Kubernetes cluster using kube-state-metrics
 2. Analyzing resource usage patterns with the Recommendations Maker
 3. Implementing optimizations through the Action Taker component
-4. Providing visibility into recommendations and actions through Grafana dashboards
+4. [Optional] Providing visibility into recommendations and actions through Grafana dashboards
 
 ## Prerequisites
 
 - Kubernetes 1.16+
 - Helm 3.0+
-- A working Prometheus installation (optional, but recommended for full functionality)
 
 ## Installation
 
 ```bash
-helm repo add autopilot-repo <repository-url>
-helm install autopilot autopilot-repo/autopilot
+helm repo add kompass-repo https://zesty-co.github.io/kompass-pod-rightsizing
+helm install pod-rightsizing kompass-repo/pod-rightsizing
 ```
+
+## Enable pod rightsizing on your workload
+Add the following section to the default AutoPilotConfig CR (`default-pod-rightsizing-config`) under Spec
+##### Pay attention that appList is list and you need to add list item for each workload that you want to right-size
+```yaml
+appList:
+- kind: <YOUR_WORKLOAD_KIND>
+  name: <YOUR_WORKLOAD_NAME>
+  namespace: <YOUR_WORKLOAD_NAMESPACE>
+```
+##### If workload exist in more than one AutoPilotConfig, we choose the one with highest priority (0 Being the highest priority)
 
 ## Configuration Options
 
-The following table lists the configurable parameters of the Autopilot chart and their default values.
+The following table lists the configurable parameters of the Kompass Pod-Rightsizing chart and their default values.
 
 ### Global Configuration
 
@@ -84,7 +94,7 @@ The following table lists the configurable parameters of the Autopilot chart and
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `kube-state-metrics.enabled` | Enable kube-state-metrics installation | `true` |
-| `kube-state-metrics.fullnameOverride` | Override the full name of kube-state-metrics | `pilot-kube-state-metrics` |
+| `kube-state-metrics.fullnameOverride` | Override the full name of kube-state-metrics | `zesty-kompass-pod-rightsizing-kube-state-metrics` |
 | `kube-state-metrics.namespaceOverride` | Override the namespace of kube-state-metrics | `` |
 | `kube-state-metrics.extraArgs` | Extra arguments for kube-state-metrics | `["--metric-annotations-allowlist=pods=[*]"]` |
 
@@ -102,19 +112,11 @@ The following table lists the configurable parameters of the Autopilot chart and
 | `grafana.service.port` | Grafana service port | `80` |
 | `grafana.ingress.enabled` | Enable Grafana ingress | `false` |
 
-### Testing Configuration
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `tests.enabled` | Enable test components | `false` |
-| `tests.dev_env` | Enable development environment for tests | `false` |
-| `tests.recommendation_maker_dry_run` | Enable dry run mode for recommendation maker | `false` |
-| `tests.values.recommendation_maker_dry_run` | Enable dry run mode for recommendation maker (passed to subchart) | `false` |
-
 ## Dependencies
 
-The Autopilot chart depends on the following charts:
+The Kompass Pod-Rightsizing chart depends on the following charts:
 
+- **victoria metrics**: For time-series data storage and querying of resource utilization metrics
 - **kube-state-metrics**: For collecting metrics from Kubernetes objects
 - **grafana**: For visualization of recommendations and actions
 - **cert-manager**: For TLS certificate management
@@ -125,27 +127,26 @@ The Autopilot chart depends on the following charts:
 ### Basic Installation
 
 ```bash
-helm install autopilot autopilot-repo/autopilot
+helm install pod-rightsizing kompass-repo/pod-rightsizing
 ```
 
 ### Custom Configuration
 
 ```bash
-helm install autopilot autopilot-repo/autopilot \
+helm install pod-rightsizing kompass-repo/pod-rightsizing \
   --set recommendationsMaker.image.tag=v1.2.3 \
-  --set actionTaker.image.tag=v1.2.3 \
-  --set tests.enabled=true
+  --set actionTaker.image.tag=v1.2.3
 ```
 
 ### Using a Custom Values File
 
 ```bash
-helm install autopilot autopilot-repo/autopilot -f custom-values.yaml
+helm install pod-rightsizing kompass-repo/pod-rightsizing -f custom-values.yaml
 ```
 
 ## Monitoring and Dashboards
 
-Autopilot includes Grafana dashboards for monitoring the performance and recommendations of the system. These dashboards are automatically installed when the `grafana.enabled` parameter is set to `true`.
+Kompass Pod-Rightsizing includes Grafana dashboards for monitoring the performance and recommendations of the system. These dashboards are automatically installed when the `grafana.enabled` parameter is set to `true`.
 
 ## Troubleshooting
 
