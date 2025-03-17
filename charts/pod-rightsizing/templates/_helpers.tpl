@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "autopilot.name" -}}
+{{- define "pod-rightsizing.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -53,7 +53,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "autopilot.fullname" -}}
+{{- define "pod-rightsizing.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -69,16 +69,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "autopilot.chart" -}}
+{{- define "pod-rightsizing.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "autopilot.labels" -}}
-helm.sh/chart: {{ include "autopilot.chart" . }}
-{{ include "autopilot.selectorLabels" . }}
+{{- define "pod-rightsizing.labels" -}}
+helm.sh/chart: {{ include "pod-rightsizing.chart" . }}
+{{ include "pod-rightsizing.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -88,18 +88,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "autopilot.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "autopilot.name" . }}
+{{- define "pod-rightsizing.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "pod-rightsizing.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "autopilot.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "autopilot.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
 {{- end }}

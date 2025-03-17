@@ -18,7 +18,7 @@ metadata:
     "helm.sh/hook-weight": "2"
     cert-manager.io/disable-name-generation: "true"
   labels:
-    {{- include "autopilot.labels" . | nindent 4 }}
+    {{- include "pod-rightsizing.labels" . | nindent 4 }}
 spec:
   secretName: kompass-pod-rightsizing-webhook-cert
   dnsNames:

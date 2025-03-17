@@ -5,17 +5,17 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
     recommendationsInterval: '30m'
-    cooldownPeriod: {{ if .Values.tests.dev_env }}'20m'{{ else }}'120m'{{ end }}
+    cooldownPeriod: '120m'
     cooldownBetweenActions: '2m'
-    dataCoveragePercentage: {{ if .Values.tests.dev_env }}'10'{{ else }}'80'{{ end }}
-    lookbackPeriod: {{ if .Values.tests.dev_env }}'1h'{{ else }}'1d'{{ end }}
+    dataCoveragePercentage: '80'
+    lookbackPeriod: '1d'
 
     memoryImpactPercentage: '10'
-    minimumMemoryStepForScaleUp: {{ if .Values.tests.dev_env }}'16Mi'{{ else }}'256Mi'{{ end }}
-    minimumMemoryValueForScaleDown: {{ if .Values.tests.dev_env }}'16Mi'{{ else }}'256Mi'{{ end }}
+    minimumMemoryStepForScaleUp: '256Mi'
+    minimumMemoryValueForScaleDown: '256Mi'
     
     cpuImpactPercentage: '10'
-    minimumCPUStepForScaleUp: {{ if .Values.tests.dev_env }}'10m'{{ else }}'100m'{{ end }}
+    minimumCPUStepForScaleUp: '100m'
     minimumCPUValueForScaleDown: '10m'
  
     hpaThresholdCpuLimit: "0.9"

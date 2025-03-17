@@ -15,21 +15,17 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.1
+version: 0.1.0
 
 dependencies:
   - name: kube-state-metrics
     version: ">=5.28.0"
     repository: https://prometheus-community.github.io/helm-charts
     condition: kube-state-metrics.enabled
-  # - name: grafana
-  # version: "0.1.0"
-  # repository: file://../grafana
-  # condition: grafana.enabled
-  - name: tests
-    version: "0.1.0"
-    repository: file://../tests
-    condition: tests.enabled
+  - name: grafana
+    version: "8.10.4"
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana.enabled
   - name: cert-manager
     repository: https://charts.jetstack.io
     condition: cert-manager.enabled
