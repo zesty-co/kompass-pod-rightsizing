@@ -39,3 +39,4 @@ jobs:
         with:
           pages_branch: main
           charts_dir: charts
+          packages_with_index: true
