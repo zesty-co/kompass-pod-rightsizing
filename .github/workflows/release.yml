@@ -28,4 +28,4 @@ jobs:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
           pages_branch: main
-          charts_dir: .
+          charts_dir: charts
