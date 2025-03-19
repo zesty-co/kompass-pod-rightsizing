@@ -29,16 +29,32 @@ helm repo add kompass-repo https://zesty-co.github.io/kompass-pod-rightsizing
 helm install pod-rightsizing kompass-repo/pod-rightsizing
 ```
 
-## Enable pod rightsizing on your workload
-Add the following section to the default AutoPilotConfig CR (`default-pod-rightsizing-config`) under Spec
-##### Pay attention that appList is list and you need to add list item for each workload that you want to right-size
+## Adding Workloads for Pod Rightsizing
+
+To enable Pod Rightsizing for specific workloads, update the default `AutoPilotConfig` Custom Resource (`default-pod-rightsizing-config`) under the `spec` section.
+
+### Important Notes:
+
+1. `applist` **Format:**
+
+   - `appList` is a list where you need to add a separate item for each workload you want to right-size.
+   - **Only include the following fields for each workload:** `kind`, `name`, `namespace`.
+
+2. **Configuration Example:**
+
 ```yaml
 appList:
-- kind: <YOUR_WORKLOAD_KIND>
-  name: <YOUR_WORKLOAD_NAME>
-  namespace: <YOUR_WORKLOAD_NAMESPACE>
+  - kind: <YOUR_WORKLOAD_KIND>
+    name: <YOUR_WORKLOAD_NAME>
+    namespace: <YOUR_WORKLOAD_NAMESPACE>
 ```
-##### If workload exist in more than one AutoPilotConfig, we choose the one with highest priority (0 Being the highest priority)
+
+3. **Removing Workloads:**\
+   To exclude a workload from Pod Rightsizing, delete the corresponding entry from the `appList` in the `AutoPilotConfig` CR.
+
+4. **Handling Multiple Configurations:**\
+   If a workload exists in more than one `AutoPilotConfig`, the configuration with the highest priority will be applied.\
+   **Priority Note:** Lower numbers indicate higher priority (e.g., `0` is the highest priority).
 
 ## Configuration Options
 
@@ -120,7 +136,6 @@ The Kompass Pod-Rightsizing chart depends on the following charts:
 - **kube-state-metrics**: For collecting metrics from Kubernetes objects
 - **grafana**: For visualization of recommendations and actions
 - **cert-manager**: For TLS certificate management
-- **tests**: For testing components (optional)
 
 ## Usage Examples
 
