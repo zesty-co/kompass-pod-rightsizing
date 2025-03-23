@@ -11,11 +11,11 @@ The solution integrates with Victoria Metrics (via kube-state-metrics) to make d
 
 ## Architecture
 
-Kompass Pod-Rightsizing works by:
-1. Collecting metrics from your Kubernetes cluster using kube-state-metrics
-2. Analyzing resource usage patterns with the Recommendations Maker
-3. Implementing optimizations through the Action Taker component
-4. [Optional] Providing visibility into recommendations and actions through Grafana dashboards
+The Kompass Pod Rightsizing solution does the following:
+1. Collects metrics from your Kubernetes cluster using kube-state-metrics
+2. Analyzes resource usage patterns using the Recommendations Maker
+3. Implements optimization recommendations using the Action Taker
+4. [Optional] Provides visibility into recommendations and actions through Grafana dashboards
 
 ## Prerequisites
 
@@ -74,6 +74,14 @@ The following table lists the configurable parameters of the Kompass Pod-Rightsi
 |-----------|-------------|---------|
 | `serviceAccount.name` | Name of the service account | `"kompass-rightsizing"` |
 
+### Coralogix Logging
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `enabled` | boolean flag that determines whether the Coralogix logging feature is enabled or not | `false` |
+| `clusterName` | Cluster identifier name for Zesty analysis | `""` |
+| `apiKey` | Specify the API key required for authenticating in Coralogix | `""` |
+
 ### Action Taker Configuration
 
 | Parameter | Description | Default |
@@ -95,7 +103,18 @@ The following table lists the configurable parameters of the Kompass Pod-Rightsi
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-`podRightsizingConfig.name` | Name of the pod rightsizing ConfigMap | `""` (uses default "kompass-pod-rightsizing-config") |
+| `podRightsizingConfig.name` | Name of the pod rightsizing ConfigMap | `""` (uses default "kompass-pod-rightsizing-config") |
+
+### Victoria Metrics Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `victoriaMetrics.storageClassName` | Name of the storage class for VM | `ebs-sc` |
+| `victoriaMetrics.volumeSize` | Size of the storage for VM | `30Gi` |
+| `victoriaMetrics.resources.requests.memory` | Memory request for Victoria Metrics container | `2Gi` |
+| `victoriaMetrics.resources.requests.cpu` | CPU request for Victoria Metrics container | `2` |
+| `victoriaMetrics.resources.limits.memory` | Memory limit for Victoria Metrics container | `` |
+| `victoriaMetrics.resources.limits.cpu` | CPU limit for Victoria Metrics container | `` |
 
 ### Cert Manager Configuration
 
