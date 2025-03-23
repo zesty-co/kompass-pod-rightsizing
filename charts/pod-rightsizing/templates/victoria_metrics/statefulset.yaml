@@ -23,18 +23,32 @@ spec:
         - -storageDataPath=/victoria-metrics-data
         - -search.maxStalenessInterval=5m
         - -search.minStalenessInterval=30s
+        - -search.maxQueryDuration=2m
         ports:
         - containerPort: 8428
         volumeMounts:
         - name: vm-data
           mountPath: /victoria-metrics-data
+        {{- if .Values.victoriaMetrics.resources }}
+        resources:
+          {{- if .Values.victoriaMetrics.resources.requests }}
+          requests:
+            memory: {{ .Values.victoriaMetrics.resources.requests.memory }}
+            cpu: {{ .Values.victoriaMetrics.resources.requests.cpu }}
+          {{- end }}
+          {{- if .Values.victoriaMetrics.resources.limits }}
+          limits:
+            memory: {{ .Values.victoriaMetrics.resources.limits.memory }}
+            cpu: {{ .Values.victoriaMetrics.resources.limits.cpu }}
+          {{- end }}
+        {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: vm-data
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: ebs-sc
+      storageClassName: {{ .Values.victoriaMetrics.storageClassName | default "ebs-sc" }}
       resources:
         requests:
-          storage: 10Gi
+          storage: {{ .Values.victoriaMetrics.volumeSize | default "30Gi" }}
 
