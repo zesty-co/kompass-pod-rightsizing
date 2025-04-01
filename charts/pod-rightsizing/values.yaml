@@ -34,8 +34,8 @@ victoriaMetrics:
   volumeSize: "30Gi"
   resources:
     requests:
-      memory: "2Gi"
-      cpu: "2"
+      memory: "3Gi"
+      cpu: "0.5"
 
 cert-manager:
   enabled: true

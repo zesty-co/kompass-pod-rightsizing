@@ -62,3 +62,22 @@ webhooks:
     resources:
     - statefulsets
   sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-argoproj-io-v1alpha1-rollout
+  failurePolicy: Fail
+  name: vrollout.kb.io
+  rules:
+    - apiGroups:
+        - argoproj.io
+      apiVersions:
+        - v1alpha1
+      operations:
+        - UPDATE
+      resources:
+        - rollouts
+  sideEffects: None

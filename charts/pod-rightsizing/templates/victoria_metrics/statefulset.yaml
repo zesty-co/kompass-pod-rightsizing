@@ -24,6 +24,9 @@ spec:
         - -search.maxStalenessInterval=5m
         - -search.minStalenessInterval=30s
         - -search.maxQueryDuration=2m
+        - -search.disableCache
+        - -memory.allowedPercent=60
+        - -dedup.minScrapeInterval=30s
         ports:
         - containerPort: 8428
         volumeMounts:
