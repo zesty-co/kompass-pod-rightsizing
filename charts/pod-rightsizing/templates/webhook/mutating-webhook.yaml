@@ -1,0 +1,29 @@
+{{- if .Capabilities.APIVersions.Has "argoproj.io/v1alpha1" -}}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: kompass-pod-rightsizing-mutating-webhook
+  annotations:
+    cert-manager.io/inject-ca-from: "{{ .Release.Namespace }}/kompass-pod-rightsizing-webhook-cert"
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-argoproj-io-v1alpha1-application
+  failurePolicy: Fail
+  name: mapplication.kb.io
+  rules:
+  - apiGroups:
+    - argoproj.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - applications
+  sideEffects: None
+{{- end }}

@@ -25,6 +25,8 @@ spec:
               value: {{ include "kompass-pod-rightsizing-config.name" . }}
             - name: CM_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: SAVE_QUERIES_TO_FILES
+              value: "false"
             {{- if .Values.cxLogging.enabled }}
             - name: CX_API_KEY
               value: {{ .Values.cxLogging.apiKey }}
