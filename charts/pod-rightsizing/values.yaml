@@ -45,6 +45,8 @@ cert-manager:
 
 kube-state-metrics:
   enabled: true
+  force: false
+  serviceName: ""
   fullnameOverride: zesty-kompass-pod-rightsizing-kube-state-metrics
   # namespaceOverride: monitoring
   extraArgs:
@@ -60,6 +62,7 @@ grafana:
     enabled: true
     type: "statefulset"
     size: 1Gi
+    storageClassName: "ebs-sc"
   # Use ConfigMaps for datasources and dashboards
   sidecar:
     datasources:

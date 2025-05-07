@@ -38,18 +38,28 @@ rules:
 - apiGroups:
   - argoproj.io
   resources:
-  - rollouts
   - applications
+  - rollouts
   verbs:
   - get
   - list
-  - watch
   - patch
   - update
+  - watch
 - apiGroups:
   - autoscaling
   resources:
   - horizontalpodautoscalers
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledobjects
   verbs:
   - get
   - list
