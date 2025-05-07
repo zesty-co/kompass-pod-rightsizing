@@ -65,6 +65,8 @@ spec:
               priority:
                 format: int64
                 type: integer
+              sourceAPC:
+                type: string
               workload:
                 properties:
                   containers:
@@ -126,6 +128,12 @@ spec:
                       initialMemoryUtilization:
                         format: int32
                         type: integer
+                      type:
+                        description: HpaKind describes the reason for this action
+                        enum:
+                        - HPA
+                        - Keda
+                        type: string
                     type: object
                   kind:
                     type: string

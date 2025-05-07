@@ -41,6 +41,14 @@ Create the name of the kompass rightsizing config map
 {{- printf "%s-%s" (include "name" .) "webhook-service" }}
 {{- end }}
 
+{{- define "kube-state-metrics.serviceName" -}}
+{{- if (index .Values "kube-state-metrics" "enabled") }}
+{{- index .Values "kube-state-metrics" "fullnameOverride" | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- index .Values "kube-state-metrics" "serviceName" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
 {{/*
 Create the name of the service account to use for the system
 */}}

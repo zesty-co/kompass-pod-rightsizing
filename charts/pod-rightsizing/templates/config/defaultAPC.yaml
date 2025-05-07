@@ -7,7 +7,7 @@ metadata:
     "helm.sh/hook-weight": "10"
 spec:
   cooldownPeriod: 120
-  dataCoverage: 0.8
+  # dataCoverage: 0.8
   ignoreCPUThrottlingEvent: false
   ignoreOOMEvent: false
   metrics:
