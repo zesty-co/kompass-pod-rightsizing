@@ -17,14 +17,14 @@ Expand the name of the chart.
 Create the name of the recommendations-maker
 */}}
 {{- define "recommendations-maker.name" -}}
-{{- printf "%s-%s" (include "name" .) .Values.recommendationsMaker.name | trunc 63 | trimSuffix "-" }}
+{{- .Values.recommendationsMaker.fullnameOverride | default (printf "%s-%s" (include "name" .) .Values.recommendationsMaker.name | trunc 63 | trimSuffix "-") }}
 {{- end }}
 
 {{/*
 Create the name of the action-taker
 */}}
 {{- define "action-taker.name" -}}
-{{- printf "%s-%s" (include "name" .) .Values.actionTaker.name | trunc 63 | trimSuffix "-" }}
+{{- .Values.actionTaker.fullnameOverride | default (printf "%s-%s" (include "name" .) .Values.actionTaker.name | trunc 63 | trimSuffix "-") }}
 {{- end }}
 
 {{/*
@@ -47,6 +47,10 @@ Create the name of the kompass rightsizing config map
 {{- else }}
 {{- index .Values "kube-state-metrics" "serviceName" | trunc 63 | trimSuffix "-" }}
 {{- end }}
+{{- end }}
+
+{{- define "vmagent.scrapeInterval" -}}
+{{- default "30s" .Values.victoriaMetrics.vmagent.scrapeInterval -}}
 {{- end }}
 
 {{/*
@@ -97,6 +101,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "pod-rightsizing.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "pod-rightsizing.name" . }}
+app.kubernetes.io/name: pod-rightsizing # Don't change this, since the component monitor uses this value to identify the component
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

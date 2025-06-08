@@ -8,7 +8,7 @@ data:
     scrape_configs:
       # For container CPU and memory metrics
       - job_name: 'kubelet'
-        scrape_interval: 30s
+        scrape_interval: {{ include "vmagent.scrapeInterval" . }}
         scheme: https
         tls_config:
           insecure_skip_verify: true
@@ -32,19 +32,19 @@ data:
 
       # for collecting Pilot metrics
       - job_name: 'pilot'
-        scrape_interval: 30s
+        scrape_interval: {{ include "vmagent.scrapeInterval" . }}
         static_configs:
           - targets: ['http://{{ include "recommendations-maker.name" . }}.{{ .Release.Namespace }}:{{ .Values.recommendationsMaker.port }}']
 
       # for collecting VM metrics
       - job_name: 'vmetrics'
-        scrape_interval: 30s
+        scrape_interval: {{ include "vmagent.scrapeInterval" . }}
         static_configs:
           - targets: ['http://victoriametrics.{{ .Release.Namespace }}:8428']
 
       # For pod and node metrics
       - job_name: 'kube-state-metrics'
-        scrape_interval: 30s
+        scrape_interval: {{ include "vmagent.scrapeInterval" . }}
         kubernetes_sd_configs:
           - role: service
         relabel_configs:
