@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: victoriametrics
+    {{- include "pod-rightsizing.labels" . | nindent 4 }} # Don't change this, since the component monitor uses labels from here to identify the component
 spec:
   replicas: 1
   selector:
@@ -34,17 +35,32 @@ spec:
           mountPath: /victoria-metrics-data
         {{- if .Values.victoriaMetrics.resources }}
         resources:
-          {{- if .Values.victoriaMetrics.resources.requests }}
-          requests:
-            memory: {{ .Values.victoriaMetrics.resources.requests.memory }}
-            cpu: {{ .Values.victoriaMetrics.resources.requests.cpu }}
-          {{- end }}
-          {{- if .Values.victoriaMetrics.resources.limits }}
-          limits:
-            memory: {{ .Values.victoriaMetrics.resources.limits.memory }}
-            cpu: {{ .Values.victoriaMetrics.resources.limits.cpu }}
-          {{- end }}
+{{ .Values.victoriaMetrics.resources | toYaml | nindent 10 }}
         {{- end }}
+      - name: vmalert
+        image: "victoriametrics/vmalert:v1.112.0"
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+        args:
+        - -datasource.url=http://localhost:8428/
+        - -remoteRead.url=http://localhost:8428/ # For vmalert to query data for rules
+        - -remoteWrite.url=http://localhost:8428/ # For vmalert to write recording rule results and alerts
+        - -rule=/etc/victoriametrics/rules/*.yaml # Glob pattern for rule files
+        - -evaluationInterval={{ include "vmagent.scrapeInterval" . }}
+        ports:
+        - name: vmalert-http
+          containerPort: 8880 # Default vmalert HTTP port
+        volumeMounts:
+        - name: recording-rules-volume
+          mountPath: /etc/victoriametrics/rules
+          readOnly: true
+        {{- if .Values.victoriaMetrics.vmalert.resources }}
+        resources:
+{{ .Values.victoriaMetrics.vmalert.resources | toYaml | nindent 10 }}
+        {{- end }}
+      volumes:
+        - name: recording-rules-volume
+          configMap:
+            name: vm-custom-recording-rules
   volumeClaimTemplates:
   - metadata:
       name: vm-data

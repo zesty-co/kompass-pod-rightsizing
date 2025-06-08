@@ -1,4 +1,4 @@
-{{- if .Capabilities.APIVersions.Has "argoproj.io/v1alpha1" -}}
+
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
@@ -6,6 +6,83 @@ metadata:
   annotations:
     cert-manager.io/inject-ca-from: "{{ .Release.Namespace }}/kompass-pod-rightsizing-webhook-cert"
 webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-apps-v1-daemonset
+  failurePolicy: Ignore
+  name: vdaemonset-v1.kb.io
+  rules:
+  - apiGroups:
+    - apps
+    apiVersions:
+    - v1
+    operations:
+    - UPDATE
+    resources:
+    - daemonsets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-apps-v1-deployment
+  failurePolicy: Ignore
+  name: vdeployment-v1.kb.io
+  rules:
+  - apiGroups:
+    - apps
+    apiVersions:
+    - v1
+    operations:
+    - UPDATE
+    resources:
+    - deployments
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-apps-v1-statefulset
+  failurePolicy: Ignore
+  name: vstatefulset-v1.kb.io
+  rules:
+  - apiGroups:
+    - apps
+    apiVersions:
+    - v1
+    operations:
+    - UPDATE
+    resources:
+    - statefulsets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-argoproj-io-v1alpha1-rollout
+  failurePolicy: Ignore
+  name: vrollout.kb.io
+  rules:
+  - apiGroups:
+    - argoproj.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - UPDATE
+    resources:
+    - rollouts
+  sideEffects: None
+{{- if .Capabilities.APIVersions.Has "argoproj.io/v1alpha1" }}
 - admissionReviewVersions:
   - v1
   clientConfig:

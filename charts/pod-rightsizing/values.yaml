@@ -14,16 +14,19 @@ cxLogging:
   timeDeltaUrl: "https://ingress.eu2.coralogix.com:443/sdk/v1/time"
 
 actionTaker:
+  # fullnameOverride: ""
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
     tag: "latest"
 
 recommendationsMaker:
+  # fullnameOverride: ""
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
     tag: "latest"
+    args:
   port: 8088
 
 podRightsizingConfig:
@@ -36,6 +39,16 @@ victoriaMetrics:
     requests:
       memory: "3Gi"
       cpu: "0.5"
+  vmagent:
+    scrapeInterval: 30s
+  vmalert:
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "0.1"
+      limits:
+        memory: "256Mi"
+        cpu: "0.3"
 
 cert-manager:
   enabled: true
