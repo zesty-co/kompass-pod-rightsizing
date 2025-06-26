@@ -20,6 +20,7 @@ spec:
       - name: vmagent
         image: victoriametrics/vmagent:v1.112.0
         args:
+          - -promscrape.maxScrapeSize=32MB
           - -promscrape.config=/etc/vmagent-config/vmagent-config.yaml
           - -remoteWrite.url=http://victoriametrics.{{ .Release.Namespace }}:8428/api/v1/write
         ports:
