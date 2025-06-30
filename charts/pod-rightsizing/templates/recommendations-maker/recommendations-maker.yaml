@@ -28,6 +28,8 @@ spec:
               value: {{ include "kompass-pod-rightsizing-config.name" . }}
             - name: CM_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: VM_URL
+              value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
             - name: SAVE_QUERIES_TO_FILES
               value: "false"
             {{- if .Values.cxLogging.enabled }}

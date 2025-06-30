@@ -7,6 +7,12 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - "nodes/proxy"
+  verbs:
+  - "get"
+- apiGroups:
+  - ""
+  resources:
   - configmaps
   verbs:
   - get

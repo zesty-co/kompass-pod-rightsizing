@@ -1,0 +1,46 @@
+{{- if .Values.cxLogging.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "metrics-exporter.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "metrics-exporter.name" . }}
+    {{- include "pod-rightsizing.labels" . | nindent 4 }}
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: metrics-exporter
+              image: {{ .Values.registry }}{{ .Values.metricsExporter.image.name }}:{{ .Values.metricsExporter.image.tag }}
+              imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
+              {{- if .Values.metricsExporter.image.args }}
+              args: {{ toYaml .Values.metricsExporter.image.args | nindent 10 }}
+              {{- end }}
+              env:
+                - name: ACCOUNT_ID
+                  value: {{ .Values.accountId | quote }}
+                - name: CX_API_KEY
+                  value: {{ .Values.cxLogging.apiKey }}
+                - name: CORALOGIX_METRICS_URL
+                  value: {{ .Values.cxLogging.metricsUrl }}
+                - name: CORALOGIX_LOG_URL
+                  value: {{ .Values.cxLogging.logUrl }}
+                - name: CX_CLUSTER_NAME
+                  value: {{ .Values.cxLogging.clusterName }}
+                - name: CM_NAMESPACE
+                  value: {{ .Release.Namespace }}
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+          restartPolicy: Never
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          serviceAccountName: {{ include "pod-rightsizing.metricsExporterServiceAccountName" . }}
+{{- end }}

@@ -28,6 +28,13 @@ Create the name of the action-taker
 {{- end }}
 
 {{/*
+Create the name of the metrics-exporter
+*/}}
+{{- define "metrics-exporter.name" -}}
+{{- .Values.metricsExporter.fullnameOverride | default (printf "%s-%s" (include "name" .) .Values.metricsExporter.name | trunc 63 | trimSuffix "-") }}
+{{- end }}
+
+{{/*
 Create the name of the kompass rightsizing config map
 */}}
 {{- define "kompass-pod-rightsizing-config.name" -}}
@@ -58,6 +65,13 @@ Create the name of the service account to use for the system
 */}}
 {{- define "pod-rightsizing.serviceAccountName" -}}
 {{- default "zesty-kompass-rightsizing" .Values.serviceAccount.name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use for the system
+*/}}
+{{- define "pod-rightsizing.metricsExporterServiceAccountName" -}}
+{{- default "zesty-kompass-rightsizing-metrics-exporter" .Values.metricsExporterServiceAccount.name }}
 {{- end }}
 
 {{/*
@@ -104,3 +118,10 @@ Selector labels
 app.kubernetes.io/name: pod-rightsizing # Don't change this, since the component monitor uses this value to identify the component
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Get the VictoriaMetrics remote URL, with a default.
+*/}}
+{{- define "pod-rightsizing.victoriaMetrics.url" -}}
+{{- default "http://kompass-victoria-metrics:8428" .Values.global.victoriaMetricsRemoteUrl }}
+{{- end -}}
