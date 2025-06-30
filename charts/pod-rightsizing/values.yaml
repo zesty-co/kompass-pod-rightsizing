@@ -20,6 +20,12 @@ cxLogging:
 
 actionTaker:
   # fullnameOverride: ""
+  kubeRbacProxy:
+    image:
+      registry: gcr.io
+      repository: kubebuilder/kube-rbac-proxy
+      tag: v0.13.1
+
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
@@ -49,4 +55,3 @@ cert-manager:
   # namespace: cert-manager
   crds:
     enabled: true
-
