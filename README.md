@@ -91,13 +91,6 @@ The following table lists the configurable parameters of the Kompass Pod Rightsi
 | --------------------------- | ------------------------------------- | ---------------------------------------------------- |
 | `podRightsizingConfig.name` | Name of the pod rightsizing ConfigMap | `""` (uses default "kompass-pod-rightsizing-config") |
 
-### Victoria Metrics Configuration
-
-| Parameter                          | Description                      | Default  |
-| ---------------------------------- | -------------------------------- | -------- |
-| `victoriaMetrics.storageClassName` | Name of the storage class for VM | `ebs-sc` |
-| `victoriaMetrics.volumeSize`       | Size of the storage for VM       | `30Gi`   |
-
 ### Cert Manager Configuration
 
 | Parameter                   | Description                      | Default |
@@ -105,29 +98,6 @@ The following table lists the configurable parameters of the Kompass Pod Rightsi
 | `cert-manager.enabled`      | Enable cert-manager installation | `true`  |
 | `cert-manager.namespace`    | Namespace for cert-manager       | \`\`    |
 | `cert-manager.crds.enabled` | Enable cert-manager CRDs         | `true`  |
-
-### Kube State Metrics Configuration
-
-| Parameter                              | Description                                  | Default                                            |
-| -------------------------------------- | -------------------------------------------- | -------------------------------------------------- |
-| `kube-state-metrics.enabled`           | Enable kube-state-metrics installation       | `true`                                             |
-| `kube-state-metrics.fullnameOverride`  | Override the full name of kube-state-metrics | `zesty-kompass-pod-rightsizing-kube-state-metrics` |
-| `kube-state-metrics.namespaceOverride` | Override the namespace of kube-state-metrics | \`\`                                               |
-| `kube-state-metrics.extraArgs`         | Extra arguments for kube-state-metrics       | `["--metric-annotations-allowlist=pods=[*]"]`      |
-
-### Grafana Configuration
-
-| Parameter                  | Description                | Default        |
-| -------------------------- | -------------------------- | -------------- |
-| `grafana.enabled`          | Enable Grafana             | `true`         |
-| `grafana.namespace`        | Namespace for Grafana      | \`\`           |
-| `grafana.replicaCount`     | Number of Grafana replicas | `1`            |
-| `grafana.image.repository` | Grafana image repository   | `nginx`        |
-| `grafana.image.pullPolicy` | Grafana image pull policy  | `IfNotPresent` |
-| `grafana.image.tag`        | Grafana image tag          | `""`           |
-| `grafana.service.type`     | Grafana service type       | `ClusterIP`    |
-| `grafana.service.port`     | Grafana service port       | `80`           |
-| `grafana.ingress.enabled`  | Enable Grafana ingress     | `false`        |
 
 ## Monitoring and Dashboards
 
