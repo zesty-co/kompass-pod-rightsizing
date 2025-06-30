@@ -1,3 +1,4 @@
+accountId: ""
 nameOverride: ""
 fullnameOverride: ""
 imagePullPolicy: "Always"
@@ -6,11 +7,15 @@ registry: 672188301118.dkr.ecr.eu-west-1.amazonaws.com
 serviceAccount:
   name: "zesty-kompass-rightsizing"
 
+metricsExporterServiceAccount:
+  name: "zesty-kompass-rightsizing-metrics-exporter"
+
 cxLogging:
-  enabled: false
-  clusterName: ""
   apiKey: ""
+  clusterName: ""
+  enabled: false
   logUrl: "https://ingress.eu2.coralogix.com:443/api/v1/logs"
+  metricsUrl: "https://ingress.eu2.coralogix.com:443"
   timeDeltaUrl: "https://ingress.eu2.coralogix.com:443/sdk/v1/time"
 
 actionTaker:
@@ -29,26 +34,15 @@ recommendationsMaker:
     args:
   port: 8088
 
+metricsExporter:
+  name: "metrics-exporter"
+  image:
+    name: "/pod-rightsizing/metrics-exporter"
+    tag: "latest"
+    args:
+
 podRightsizingConfig:
   name: ""
-
-victoriaMetrics:
-  storageClassName: "ebs-sc"
-  volumeSize: "30Gi"
-  resources:
-    requests:
-      memory: "3Gi"
-      cpu: "0.5"
-  vmagent:
-    scrapeInterval: 30s
-  vmalert:
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "0.1"
-      limits:
-        memory: "256Mi"
-        cpu: "0.3"
 
 cert-manager:
   enabled: true
@@ -56,34 +50,3 @@ cert-manager:
   crds:
     enabled: true
 
-kube-state-metrics:
-  enabled: true
-  force: false
-  serviceName: ""
-  fullnameOverride: zesty-kompass-pod-rightsizing-kube-state-metrics
-  # namespaceOverride: monitoring
-  extraArgs:
-    - --metric-annotations-allowlist=pods=[*]
-
-grafana:
-  enabled: true
-  # namespace: monitoring
-  fullnameOverride: "zesty-kompass-pod-rightsizing-grafana"
-  deployDataSource: true
-  deployDashboard: true
-  persistence:
-    enabled: true
-    type: "statefulset"
-    size: 1Gi
-    storageClassName: "ebs-sc"
-  # Use ConfigMaps for datasources and dashboards
-  sidecar:
-    datasources:
-      enabled: true
-      label: grafana_datasource
-    dashboards:
-      enabled: true
-      label: grafana_dashboard
-  # Add admin credentials configuration
-  adminUser: admin
-  adminPassword: password  # You should change this to a secure password
