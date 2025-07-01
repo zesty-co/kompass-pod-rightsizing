@@ -17,5 +17,14 @@ rules:
   verbs:
   - get
   - list
-  {{- end }}
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  resourceNames:
+  - kompass-insights-secret
+  verbs:
+  - get
+  - list
+{{- end }}
   
