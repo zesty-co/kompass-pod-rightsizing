@@ -9,6 +9,9 @@ metadata:
     {{- include "pod-rightsizing.labels" . | nindent 4 }}
 spec:
   schedule: "0 * * * *"
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 2
+  successfulJobsHistoryLimit: 2
   jobTemplate:
     spec:
       template:

@@ -90,7 +90,7 @@ webhooks:
       name: {{ include "kompass-webhook-svc.name" . }}
       namespace: {{ .Release.Namespace }}
       path: /mutate-argoproj-io-v1alpha1-application
-  failurePolicy: Fail
+  failurePolicy: Ignore
   name: mapplication.kb.io
   rules:
   - apiGroups:
