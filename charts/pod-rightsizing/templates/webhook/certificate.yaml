@@ -3,10 +3,10 @@ kind: ClusterIssuer
 metadata:
   name: selfsigned-issuer
   annotations:
-{{- if .Values.orderedCertificateCreation }}
+    "argocd.argoproj.io/hook": "PostSync"
+    "argocd.argoproj.io/sync-wave": "0"
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "1"
-{{- end }}
 spec:
   selfSigned: {}
 ---
@@ -16,10 +16,10 @@ metadata:
   name: kompass-pod-rightsizing-webhook-cert
   namespace: {{ .Release.Namespace }}  # Ensure it's deployed in the correct namespace
   annotations:
-{{- if .Values.orderedCertificateCreation }}
+    "argocd.argoproj.io/hook": "PostSync"
+    "argocd.argoproj.io/sync-wave": "1"
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "2"
-{{- end }}
     cert-manager.io/disable-name-generation: "true"
   labels:
     {{- include "pod-rightsizing.labels" . | nindent 4 }}

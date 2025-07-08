@@ -55,5 +55,3 @@ cert-manager:
   # namespace: cert-manager
   crds:
     enabled: true
-
-orderedCertificateCreation: true

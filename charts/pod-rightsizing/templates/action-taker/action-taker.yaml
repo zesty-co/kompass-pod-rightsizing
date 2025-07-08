@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
+    app.kubernetes.io/name: pod-rightsizing
     control-plane: controller-manager
     {{- include "pod-rightsizing.labels" . | nindent 4 }} # Don't change this, since the component monitor uses labels from here to identify the component
   name: {{ include "action-taker.name" . }}
