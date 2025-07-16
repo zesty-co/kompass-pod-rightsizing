@@ -2,6 +2,20 @@ apiVersion: v1
 entries:
   pod-rightsizing:
   - apiVersion: v2
+    created: "2025-07-16T14:31:41.961212048Z"
+    dependencies:
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: '>=1.16.3'
+    description: A Helm chart for Kubernetes
+    digest: f04c4084daf9abd4f4f68e7ed468d5a0608cbe7535ec9dd7c4a79d96d90cb8a0
+    name: pod-rightsizing
+    type: application
+    urls:
+    - https://github.com/zesty-co/kompass-pod-rightsizing/releases/download/pod-rightsizing-0.1.15/pod-rightsizing-0.1.15.tgz
+    version: 0.1.15
+  - apiVersion: v2
     created: "2025-07-16T05:29:43.908667331Z"
     dependencies:
     - condition: cert-manager.enabled
@@ -269,4 +283,4 @@ entries:
     urls:
     - https://github.com/zesty-co/kompass-pod-rightsizing/releases/download/pod-rightsizing-0.1.0/pod-rightsizing-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-16T05:29:43.908765484Z"
+generated: "2025-07-16T14:31:41.961317427Z"
