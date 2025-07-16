@@ -31,7 +31,7 @@ data:
 
     failedActionRetriesAmount: '1'
 
-    containersNamesQueryChunkSize: '50'
+    resourceIdsQueryChunkSize: '30'
 
     buffers: |
         - name: Default

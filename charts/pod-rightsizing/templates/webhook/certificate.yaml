@@ -5,7 +5,7 @@ metadata:
   annotations:
   {{ if .Values.useHelmPriorityHooks }}
     helm.sh/hook: post-install,post-upgrade
-    helm.sh/hook-weight: "1"
+    helm.sh/hook-weight: "15"
   {{ end }}
 spec:
   selfSigned: {}
@@ -18,7 +18,7 @@ metadata:
   annotations:
   {{ if .Values.useHelmPriorityHooks }}
     helm.sh/hook: post-install,post-upgrade
-    helm.sh/hook-weight: "2"
+    helm.sh/hook-weight: "20"
   {{ end }}
     cert-manager.io/disable-name-generation: "true"
   labels:
