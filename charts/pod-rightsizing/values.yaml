@@ -55,5 +55,12 @@ cert-manager:
   # namespace: cert-manager
   crds:
     enabled: true
+  
+  # Add post-upgrade hook to make sure we are not getting into a race condition
+  startupapicheck:
+    jobAnnotations:
+      helm.sh/hook: post-install,post-upgrade
+      helm.sh/hook-weight: "1"
+      helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 
 useHelmPriorityHooks: true
