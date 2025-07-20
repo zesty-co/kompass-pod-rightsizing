@@ -4,43 +4,51 @@ metadata:
   name: {{ include "kompass-pod-rightsizing-config.name" . }}
   namespace: {{ .Release.Namespace }}
 data:
-    recommendationsInterval: '30m'
-    cooldownPeriod: '120m'
-    cooldownBetweenActions: '2m'
-    dataCoveragePercentage: '80'
-    lookbackPeriod: '1d'
+    recommendationsInterval: {{ (.Values.config).recommendationsInterval | default "30m" | quote }}
+    cooldownPeriod: {{ (.Values.config).cooldownPeriod | default "120m" | quote }}
+    cooldownBetweenActions: {{ (.Values.config).cooldownBetweenActions | default "2m" | quote }}
+    dataCoveragePercentage: {{ (.Values.config).dataCoveragePercentage | default "80" | quote }}
+    lookbackPeriod: {{ (.Values.config).lookbackPeriod | default "1d" | quote }}
 
-    memoryImpactPercentage: '10'
-    minimumMemoryStepForScaleUp: '256Mi'
-    minimumMemoryValueForScaleDown: '256Mi'
+    memoryImpactPercentage: {{ (.Values.config).memoryImpactPercentage | default "10" | quote }}
+    minimumMemoryStepForScaleUp: {{ (.Values.config).minimumMemoryStepForScaleUp | default "256Mi" | quote }}
+    minimumMemoryValueForScaleDown: {{ (.Values.config).minimumMemoryValueForScaleDown | default "256Mi" | quote }}
     
-    cpuImpactPercentage: '10'
-    minimumCPUStepForScaleUp: '100m'
-    minimumCPUValueForScaleDown: '10m'
+    cpuImpactPercentage: {{ (.Values.config).cpuImpactPercentage | default "10" | quote }}
+    minimumCPUStepForScaleUp: {{ (.Values.config).minimumCPUStepForScaleUp | default "100m" | quote }}
+    minimumCPUValueForScaleDown: {{ (.Values.config).minimumCPUValueForScaleDown | default "10m" | quote }}
  
-    hpaThresholdCpuLimit: "0.9"
-    hpaThresholdCpuRequest: "1.1"
-    hpaThresholdMemoryLimit: "0.8"
-    hpaThresholdMemoryRequest: "1"
+    hpaThresholdCpuLimit: {{ (.Values.config).hpaThresholdCpuLimit | default "0.9" | quote }}
+    hpaThresholdCpuRequest: {{ (.Values.config).hpaThresholdCpuRequest | default "1.1" | quote }}
+    hpaThresholdMemoryLimit: {{ (.Values.config).hpaThresholdMemoryLimit | default "0.8" | quote }}
+    hpaThresholdMemoryRequest: {{ (.Values.config).hpaThresholdMemoryRequest | default "1" | quote }}
   
-    hpaMaxValue: '200'
-    hpaMinValue: '70'
+    hpaMaxValue: {{ (.Values.config).hpaMaxValue | default "200" | quote }}
+    hpaMinValue: {{ (.Values.config).hpaMinValue | default "70" | quote }}
 
-    ignoreCPUThrottlingEvent: 'false'
-    ignoreOOMEvent: 'false'
+    ignoreCPUThrottlingEvent: {{ (.Values.config).ignoreCPUThrottlingEvent | default "false" | quote }}
+    ignoreOOMEvent: {{ (.Values.config).ignoreOOMEvent | default "false" | quote }}
 
-    failedActionRetriesAmount: '1'
+    failedActionRetriesAmount: {{ (.Values.config).failedActionRetriesAmount | default "1" | quote }}
 
-    resourceIdsQueryChunkSize: '30'
+    resourceIdsQueryChunkSize: {{ (.Values.config).resourceIdsQueryChunkSize | default "30" | quote }}
 
     buffers: |
-        - name: Default
-          buffer: 0.2
-        - name: Conservative
-          buffer: 0.3
-        - name: Aggressive
-          buffer: 0.2
+{{- if and .Values.config (.Values.config).buffers }}
+{{ (.Values.config).buffers | nindent 6 }}
+{{- else }}
+      - name: Default
+        buffer: 0.2
+      - name: Conservative
+        buffer: 0.3
+      - name: Aggressive
+        buffer: 0.2
+{{- end }}
     
     throttlingRollbackTimeRange: |
+{{- if and .Values.config (.Values.config).throttlingRollbackTimeRange }}
+{{ (.Values.config).throttlingRollbackTimeRange | nindent 6 }}
+{{- else }}
       from: "20m"
       to: "120m"
+{{- end }}
