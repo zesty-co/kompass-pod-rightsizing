@@ -60,7 +60,11 @@ cert-manager:
   startupapicheck:
     jobAnnotations:
       helm.sh/hook: post-install,post-upgrade
-      helm.sh/hook-weight: "1"
-      helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    rbac:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+    serviceAccount:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
 
 useHelmPriorityHooks: true
