@@ -1,16 +1,4 @@
 apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: selfsigned-issuer
-  annotations:
-  {{ if .Values.useHelmPriorityHooks }}
-    helm.sh/hook: post-install,post-upgrade
-    helm.sh/hook-weight: "15"
-  {{ end }}
-spec:
-  selfSigned: {}
----
-apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kompass-pod-rightsizing-webhook-cert
@@ -30,4 +18,4 @@ spec:
     - {{ include "kompass-webhook-svc.name" . }}.{{ .Release.Namespace }}.svc.cluster.local
   issuerRef:
     kind: ClusterIssuer
-    name: selfsigned-issuer
+    name: kompass-selfsigned-issuer
