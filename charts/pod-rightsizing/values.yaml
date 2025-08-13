@@ -49,6 +49,3 @@ metricsExporter:
 
 podRightsizingConfig:
   name: ""
-
-clusterIssuerName: kompass-selfsigned-issuer
-useHelmPriorityHooks: true
