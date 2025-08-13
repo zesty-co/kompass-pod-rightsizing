@@ -18,4 +18,4 @@ spec:
     - {{ include "kompass-webhook-svc.name" . }}.{{ .Release.Namespace }}.svc.cluster.local
   issuerRef:
     kind: ClusterIssuer
-    name: {{ .Values.global.clusterIssuerName }}
+    name: {{ .Values.global.clusterIssuerName | default false }}
