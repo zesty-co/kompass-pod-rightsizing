@@ -4,7 +4,7 @@ metadata:
   name: kompass-pod-rightsizing-webhook-cert
   namespace: {{ .Release.Namespace }}  # Ensure it's deployed in the correct namespace
   annotations:
-  {{ if and .Values.global .Values.global.useHelmPriorityHooks | default false }}
+  {{ if and .Values.global .Values.global.useHelmPriorityHooks | default true }}
     helm.sh/hook: post-install,post-upgrade
     helm.sh/hook-weight: "20"
   {{ end }}
@@ -19,5 +19,5 @@ spec:
   issuerRef:
     kind: ClusterIssuer
     {{ if .Values.global }}
-      name: {{ .Values.global.clusterIssuerName }}
+    name: {{ .Values.global.clusterIssuerName }}
     {{ end }}
