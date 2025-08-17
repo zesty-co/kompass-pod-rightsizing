@@ -49,22 +49,3 @@ metricsExporter:
 
 podRightsizingConfig:
   name: ""
-
-cert-manager:
-  enabled: true
-  # namespace: cert-manager
-  crds:
-    enabled: true
-  
-  # Add post-upgrade hook to make sure we are not getting into a race condition
-  startupapicheck:
-    jobAnnotations:
-      helm.sh/hook: post-install,post-upgrade
-    rbac:
-      annotations:
-        helm.sh/hook: post-install,post-upgrade
-    serviceAccount:
-      annotations:
-        helm.sh/hook: post-install,post-upgrade
-
-useHelmPriorityHooks: true
