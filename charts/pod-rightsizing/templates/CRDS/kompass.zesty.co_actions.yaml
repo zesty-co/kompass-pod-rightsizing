@@ -31,6 +31,10 @@ spec:
       jsonPath: .status.executionTimestamp
       name: Last Execution
       type: date
+    - description: Age
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1
     schema:
       openAPIV3Schema:
