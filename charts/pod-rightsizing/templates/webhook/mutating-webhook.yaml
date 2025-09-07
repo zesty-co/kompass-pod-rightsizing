@@ -1,4 +1,4 @@
-
+{{- if .Values.enabled }}
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
@@ -104,3 +104,4 @@ webhooks:
     - applications
   sideEffects: None
 {{- end }}
+{{ end }}

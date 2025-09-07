@@ -1,3 +1,4 @@
+{{- if .Values.enabled }}
 apiVersion: kompass.zesty.co/v1
 kind: AutopilotConfig
 metadata:
@@ -19,3 +20,4 @@ spec:
       metricStrategy: Default
   minimumImpact: 0.1
   priority: 100
+{{- end }}
