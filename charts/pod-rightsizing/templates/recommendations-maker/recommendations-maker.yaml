@@ -20,9 +20,8 @@ spec:
         - name: recommendations-maker
           image: {{ .Values.registry }}{{ .Values.recommendationsMaker.image.name }}:{{ .Values.recommendationsMaker.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
-          {{- with .Values.recommendationsMaker.image.args }}
-          args:
-          {{- toYaml . | nindent 10 }}
+          {{- if .Values.recommendationsMaker.image.args }}
+          args: {{ toYaml .Values.recommendationsMaker.image.args | nindent 10 }}
           {{- end }}
           env:
             - name: CM_NAME
