@@ -26,6 +26,14 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+      {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+      {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -64,7 +72,7 @@ spec:
             capabilities:
               drop:
                 - ALL
-        - name: action-taker
+        - name: {{ .Values.actionTaker.name }}
           image: {{ .Values.registry }}{{ .Values.actionTaker.image.name }}:{{ .Values.actionTaker.image.tag }}
           args:
             - --health-probe-bind-address=:8081
