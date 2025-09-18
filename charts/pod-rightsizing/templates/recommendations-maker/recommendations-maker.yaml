@@ -16,8 +16,16 @@ spec:
       labels:
         app: {{ include "recommendations-maker.name" . }}
     spec:
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+      {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+      {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
       containers:
-        - name: recommendations-maker
+        - name: {{ .Values.recommendationsMaker.name }}
           image: {{ .Values.registry }}{{ .Values.recommendationsMaker.image.name }}:{{ .Values.recommendationsMaker.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
           {{- if .Values.recommendationsMaker.image.args }}
@@ -32,6 +40,12 @@ spec:
               value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
             - name: SAVE_QUERIES_TO_FILES
               value: "false"
+            - name: CONTAINER_NAME
+              value: {{ .Values.recommendationsMaker.name }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             {{- if .Values.cxLogging.enabled }}
             - name: CX_API_KEY
               value: {{ .Values.cxLogging.apiKey }}
