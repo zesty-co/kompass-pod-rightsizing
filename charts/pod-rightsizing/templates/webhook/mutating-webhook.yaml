@@ -69,6 +69,26 @@ webhooks:
     service:
       name: {{ include "kompass-webhook-svc.name" . }}
       namespace: {{ .Release.Namespace }}
+      path: /mutate--v1-pod
+  failurePolicy: Ignore
+  name: vpod-v1.kb.io
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pods
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
       path: /mutate-argoproj-io-v1alpha1-rollout
   failurePolicy: Ignore
   name: vrollout.kb.io

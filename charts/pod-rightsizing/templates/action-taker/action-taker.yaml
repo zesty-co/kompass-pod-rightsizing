@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/name: pod-rightsizing
     control-plane: controller-manager
     {{- include "pod-rightsizing.labels" . | nindent 4 }} # Don't change this, since the component monitor uses labels from here to identify the component
   name: {{ include "action-taker.name" . }}
@@ -98,6 +97,12 @@ spec:
               value: {{ include "kompass-pod-rightsizing-config.name" . }}
             - name: CM_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: CONTAINER_NAME
+              value: {{ .Values.actionTaker.name }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             {{- if .Values.cxLogging.enabled }}
             - name: CX_API_KEY
               value: {{ .Values.cxLogging.apiKey }}
