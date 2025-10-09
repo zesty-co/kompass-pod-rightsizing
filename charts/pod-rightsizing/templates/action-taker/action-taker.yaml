@@ -126,10 +126,7 @@ spec:
               port: 8081
             initialDelaySeconds: 5
             periodSeconds: 10
-          {{- with .Values.actionTaker.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+          {{- include "pod-rightsizing.actionTaker.resources" . | nindent 10 }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

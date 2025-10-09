@@ -45,10 +45,7 @@ spec:
                   value: {{ .Values.cxLogging.clusterName }}
                 - name: CM_NAMESPACE
                   value: {{ .Release.Namespace }}
-              resources:
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
+              {{- include "pod-rightsizing.metricsExporter.resources" . | nindent 14 }}
           restartPolicy: Never
           {{- with .Values.imagePullSecrets }}
           imagePullSecrets:
