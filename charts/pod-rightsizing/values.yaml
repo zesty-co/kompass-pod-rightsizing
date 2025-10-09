@@ -30,14 +30,14 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "latest"
+    tag: "0.1.22"
 
 recommendationsMaker:
   # fullnameOverride: ""
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "latest"
+    tag: "0.1.22"
     args:
   port: 8088
 
@@ -45,7 +45,7 @@ metricsExporter:
   name: "metrics-exporter"
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "latest"
+    tag: "0.1.22"
     args:
 
 podRightsizingConfig:

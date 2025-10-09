@@ -40,16 +40,22 @@ spec:
               value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
             - name: SAVE_QUERIES_TO_FILES
               value: "false"
+            - name: CONTAINER_NAME
+              value: {{ .Values.recommendationsMaker.name }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             {{- if .Values.cxLogging.enabled }}
             - name: CX_API_KEY
               value: {{ .Values.cxLogging.apiKey }}
             - name: CX_CLUSTER_NAME
               value: {{ .Values.cxLogging.clusterName }}
-            - name: CORALOGIX_LOG_URL
-              value: {{ .Values.cxLogging.logUrl }}
-            - name: CORALOGIX_TIME_DELTA_URL
-              value: {{ .Values.cxLogging.timeDeltaUrl }}
             {{- end }}
+            - name: CORALOGIX_LOG_URL
+              value: {{ .Values.cxLogging.logUrl | default "https://ingress.eu2.coralogix.com:443/api/v1/logs" }}
+            - name: CORALOGIX_TIME_DELTA_URL
+              value: {{ .Values.cxLogging.timeDeltaUrl | default "https://ingress.eu2.coralogix.com:443/sdk/v1/time" }}
           volumeMounts:
             - mountPath: /recommendations-data
               name: recommendations-storage
