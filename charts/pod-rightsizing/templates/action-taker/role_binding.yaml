@@ -4,11 +4,11 @@ metadata:
   labels:
     app.kubernetes.io/name: pilot
     app.kubernetes.io/managed-by: kustomize
-  name: manager-rolebinding
+  name: kompass-rightsizing-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: manager-role
+  name: kompass-rightsizing-manager-role
 subjects:
 - kind: ServiceAccount
   name: {{ include "pod-rightsizing.serviceAccountName" . }}

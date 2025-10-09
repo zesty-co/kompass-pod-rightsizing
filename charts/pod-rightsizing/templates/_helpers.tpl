@@ -125,3 +125,65 @@ Get the VictoriaMetrics remote URL, with a default.
 {{- define "pod-rightsizing.victoriaMetrics.url" -}}
 {{- default "http://kompass-victoria-metrics:8428" .Values.global.victoriaMetricsRemoteUrl }}
 {{- end -}}
+
+{{/*
+Enforce minimum resource value
+*/}}
+{{- define "pod-rightsizing.enforceMin" -}}
+{{- $user := .user -}}
+{{- $min := .min -}}
+{{- $userVal := int (regexReplaceAll "[a-zA-Z]+$" $user "") -}}
+{{- $minVal := int (regexReplaceAll "[a-zA-Z]+$" $min "") -}}
+{{- if lt $userVal $minVal }}{{ $min }}{{ else }}{{ $user }}{{ end -}}
+{{- end -}}
+
+{{/*
+Metrics Exporter resources with minimum values enforced
+*/}}
+{{- define "pod-rightsizing.metricsExporter.resources" -}}
+{{- $resources := .Values.metricsExporter.resources | default dict -}}
+{{- $userCpu := $resources.requests.cpu | default "100m" -}}
+{{- $userMemory := $resources.requests.memory | default "128Mi" -}}
+resources:
+  requests:
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "user" $userCpu "min" "100m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "user" $userMemory "min" "128Mi") }}
+{{- with $resources.limits }}
+  limits:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Recommendations Maker resources with minimum values enforced
+*/}}
+{{- define "pod-rightsizing.recommendationsMaker.resources" -}}
+{{- $resources := .Values.recommendationsMaker.resources | default dict -}}
+{{- $userCpu := $resources.requests.cpu | default "200m" -}}
+{{- $userMemory := $resources.requests.memory | default "128Mi" -}}
+resources:
+  requests:
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "user" $userCpu "min" "200m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "user" $userMemory "min" "128Mi") }}
+{{- with $resources.limits }}
+  limits:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Action Taker resources with minimum values enforced
+*/}}
+{{- define "pod-rightsizing.actionTaker.resources" -}}
+{{- $resources := .Values.actionTaker.resources | default dict -}}
+{{- $userCpu := $resources.requests.cpu | default "100m" -}}
+{{- $userMemory := $resources.requests.memory | default "128Mi" -}}
+resources:
+  requests:
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "user" $userCpu "min" "100m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "user" $userMemory "min" "128Mi") }}
+{{- with $resources.limits }}
+  limits:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end -}}

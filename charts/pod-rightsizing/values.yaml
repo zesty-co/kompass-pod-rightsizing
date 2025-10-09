@@ -30,23 +30,35 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "latest"
+    tag: "0.1.0"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 recommendationsMaker:
   # fullnameOverride: ""
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "latest"
+    tag: "0.1.0"
     args:
   port: 8088
+  resources:
+    requests:
+      cpu: 200m
+      memory: 128Mi
 
 metricsExporter:
   name: "metrics-exporter"
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "latest"
+    tag: "0.1.0"
     args:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 podRightsizingConfig:
   name: ""
