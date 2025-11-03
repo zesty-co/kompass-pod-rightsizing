@@ -26,7 +26,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Values.recommendationsMaker.name }}
-          image: {{ .Values.registry }}{{ .Values.recommendationsMaker.image.name }}:{{ .Values.recommendationsMaker.image.tag }}
+          image: {{ .Values.registry }}{{ .Values.recommendationsMaker.image.name }}:{{ .Values.recommendationsMaker.image.tag  | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
           {{- if .Values.recommendationsMaker.image.args }}
           args: {{ toYaml .Values.recommendationsMaker.image.args | nindent 10 }}
