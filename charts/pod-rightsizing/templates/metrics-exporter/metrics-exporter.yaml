@@ -27,7 +27,7 @@ spec:
           {{- end }}
           containers:
             - name: metrics-exporter
-              image: {{ .Values.registry }}{{ .Values.metricsExporter.image.name }}:{{ .Values.metricsExporter.image.tag }}
+              image: {{ .Values.registry }}{{ .Values.metricsExporter.image.name }}:{{ .Values.metricsExporter.image.tag  | default .Chart.AppVersion }}
               imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
               {{- if .Values.metricsExporter.image.args }}
               args: {{ toYaml .Values.metricsExporter.image.args | nindent 10 }}

@@ -72,7 +72,7 @@ spec:
               drop:
                 - ALL
         - name: {{ .Values.actionTaker.name }}
-          image: {{ .Values.registry }}{{ .Values.actionTaker.image.name }}:{{ .Values.actionTaker.image.tag }}
+          image: {{ .Values.registry }}{{ .Values.actionTaker.image.name }}:{{ .Values.actionTaker.image.tag | default .Chart.AppVersion }}
           args:
             - --health-probe-bind-address=:8081
             - --metrics-bind-address=127.0.0.1:8080
