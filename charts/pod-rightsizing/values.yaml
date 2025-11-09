@@ -25,17 +25,22 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "v0.2.0"
+    tag: "v0.3.0"
   resources:
     requests:
       cpu: 100m
       memory: 128Mi
+config:
+  matchNamespaces:
+  excludeNamespaces:
+    - "kube-system"
+    - "zesty-system"
 recommendationsMaker:
   # fullnameOverride: ""
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "v0.2.0"
+    tag: "v0.3.0"
     args:
   port: 8088
   resources:
@@ -46,7 +51,7 @@ metricsExporter:
   name: "metrics-exporter"
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "v0.2.0"
+    tag: "v0.3.0"
     args:
   resources:
     requests:

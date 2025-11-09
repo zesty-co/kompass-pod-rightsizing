@@ -76,6 +76,7 @@ spec:
                   this action
                 enum:
                 - InPlace
+                - Virtual
                 - WorkloadPatch
                 type: string
               priority:
@@ -163,14 +164,19 @@ spec:
               executionTimestamp:
                 format: date-time
                 type: string
+              hpaUpdated:
+                type: boolean
               phase:
                 description: ActionPhase describes the available phases for tracking
                 enum:
                 - Pending
                 - InProgress
+                - Active
                 - Completed
                 - Failed
                 type: string
+              resourcesUpdated:
+                type: boolean
               updateTimestamp:
                 format: date-time
                 type: string

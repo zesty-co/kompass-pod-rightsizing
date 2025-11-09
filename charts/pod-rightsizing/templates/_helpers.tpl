@@ -42,7 +42,14 @@ Create the name of the kompass rightsizing config map
 {{- end }}
 
 {{/*
-Create the name of the kompass rightsizing config map
+Create the name of the kompass rightsizing job dashboard config map
+*/}}
+{{- define "kompass-pod-rightsizing-jobs-dashboard-config.name" -}}
+{{- printf "%s-%s" (include "name" .) "jobs-dashboard" }}
+{{- end }}
+
+{{/*
+Create the name of the kompass rightsizing webhook service
 */}}
 {{- define "kompass-webhook-svc.name" -}}
 {{- printf "%s-%s" (include "name" .) "webhook-service" }}

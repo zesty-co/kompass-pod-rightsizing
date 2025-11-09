@@ -91,6 +91,15 @@ rules:
   - update
   - watch
 - apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - keda.sh
   resources:
   - scaledobjects
@@ -105,6 +114,7 @@ rules:
   resources:
   - actions
   - autopilotconfigs
+  - jobpilotconfigs
   verbs:
   - create
   - delete
