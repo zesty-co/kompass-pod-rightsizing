@@ -72,6 +72,17 @@ webhooks:
       path: /mutate--v1-pod
   failurePolicy: Ignore
   name: vpod-v1.kb.io
+{{- if and .Values.config (or .Values.config.matchNamespaces .Values.config.excludeNamespaces) }}
+  matchConditions:
+  {{- if .Values.config.matchNamespaces }}
+  - name: "namespace-in-filter"
+    expression: 'request.namespace in {{ .Values.config.matchNamespaces | toJson }}'
+  {{- end }}
+  {{- if .Values.config.excludeNamespaces }}
+  - name: "namespace-not-in-filter"
+    expression: '!(request.namespace in {{ .Values.config.excludeNamespaces | toJson }})'
+  {{- end }}
+{{- end }}
   rules:
   - apiGroups:
     - ""
