@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   pod-rightsizing:
   - apiVersion: v2
+    appVersion: v0.3.2
+    created: "2025-12-08T13:45:49.162986572Z"
+    description: A Helm chart for Kubernetes
+    digest: e166f0ffda70aabb5874ddd1f4cc0b4c5214c77c2b3614e40ff7fce64aa4c022
+    name: pod-rightsizing
+    type: application
+    urls:
+    - https://github.com/zesty-co/kompass-pod-rightsizing/releases/download/pod-rightsizing-v0.3.2/pod-rightsizing-v0.3.2.tgz
+    version: v0.3.2
+  - apiVersion: v2
     appVersion: v0.3.1
     created: "2025-11-17T14:21:19.829378541Z"
     description: A Helm chart for Kubernetes
@@ -386,4 +396,4 @@ entries:
     urls:
     - https://github.com/zesty-co/kompass-pod-rightsizing/releases/download/pod-rightsizing-0.1.0/pod-rightsizing-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-17T14:21:19.829673974Z"
+generated: "2025-12-08T13:45:49.163219716Z"
