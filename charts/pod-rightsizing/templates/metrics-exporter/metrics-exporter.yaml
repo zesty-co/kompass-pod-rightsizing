@@ -1,4 +1,3 @@
-{{- if .Values.cxLogging.enabled }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -7,6 +6,9 @@ metadata:
   labels:
     app: {{ include "metrics-exporter.name" . }}
     {{- include "pod-rightsizing.labels" . | nindent 4 }}
+    {{- with .Values.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   schedule: "0 * * * *"
   concurrencyPolicy: Replace
@@ -16,6 +18,13 @@ spec:
     spec:
       backoffLimit: 1
       template:
+        metadata:
+          labels:
+            app: {{ include "metrics-exporter.name" . }}
+            {{- include "pod-rightsizing.labels" . | nindent 12 }}
+            {{- with .Values.additionalLabels }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
         spec:
           {{- if .Values.global.nodeSelector }}
           nodeSelector:
@@ -35,7 +44,7 @@ spec:
               env:
                 - name: ACCOUNT_ID
                   value: {{ .Values.accountId | quote }}
-                {{- if and .Values.cxLogging .Values.cxLogging.enabled }}
+                {{- if and .Values.global.cxLogging .Values.global.cxLogging.enabled }}
                 - name: CX_API_KEY
                   value: {{ .Values.cxLogging.apiKey }}
                 - name: CX_CLUSTER_NAME
@@ -46,7 +55,7 @@ spec:
                   value: {{ .Values.cxLogging.timeDeltaUrl | default "https://ingress.eu2.coralogix.com:443/sdk/v1/time" }}
                 - name: CORALOGIX_METRICS_URL
                   value: {{ .Values.cxLogging.metricsUrl }}
-                {{- else if and .Values.global.cxLogging .Values.global.cxLogging.enabled }}
+                {{- else if and .Values.cxLogging .Values.cxLogging.enabled }}
                 - name: CX_API_KEY
                   value: {{ .Values.global.cxLogging.apiKey }}
                 - name: CX_CLUSTER_NAME
@@ -67,4 +76,3 @@ spec:
             {{- toYaml . | nindent 8 }}
           {{- end }}
           serviceAccountName: {{ include "pod-rightsizing.metricsExporterServiceAccountName" . }}
-{{- end }}
