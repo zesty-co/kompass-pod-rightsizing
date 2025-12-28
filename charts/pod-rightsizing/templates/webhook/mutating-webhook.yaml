@@ -12,6 +12,25 @@ webhooks:
     service:
       name: {{ include "kompass-webhook-svc.name" . }}
       namespace: {{ .Release.Namespace }}
+      path: /mutate-batch-v1-cronjob
+  failurePolicy: Ignore
+  name: vcronjob-v1.kb.io
+  rules:
+  - apiGroups:
+    - batch
+    apiVersions:
+    - v1
+    operations:
+    - UPDATE
+    resources:
+    - cronjobs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
       path: /mutate-apps-v1-daemonset
   failurePolicy: Ignore
   name: vdaemonset-v1.kb.io

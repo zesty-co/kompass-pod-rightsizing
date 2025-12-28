@@ -26,4 +26,24 @@ webhooks:
     resources:
     - configmaps
   sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-kompass-zesty-co-v1-jobpilotconfig
+  failurePolicy: Fail
+  name: vjobpilotconfigs-v1.kb.io
+  rules:
+  - apiGroups:
+    - kompass.zesty.co
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - jobpilotconfigs
+  sideEffects: None
 {{- end }}

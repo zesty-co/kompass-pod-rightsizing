@@ -42,10 +42,17 @@ Create the name of the kompass rightsizing config map
 {{- end }}
 
 {{/*
+Create the name of the kompass rightsizing initial values BU config map
+*/}}
+{{- define "kompass-pod-rightsizing-initial-values-config.name" -}}
+{{- printf "%s-%s" (include "name" .) "initial-values-config" }}
+{{- end }}
+
+{{/*
 Create the name of the kompass rightsizing job dashboard config map
 */}}
-{{- define "kompass-pod-rightsizing-jobs-dashboard-config.name" -}}
-{{- printf "%s-%s" (include "name" .) "jobs-dashboard" }}
+{{- define "kompass-pod-rightsizing-dashboards-config.name" -}}
+{{- printf "%s-%s" (include "name" .) "dashboards" }}
 {{- end }}
 
 {{/*
