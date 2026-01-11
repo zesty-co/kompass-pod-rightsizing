@@ -107,6 +107,8 @@ spec:
               value: {{ .Release.Namespace }}
             - name: CONTAINER_NAME
               value: {{ .Values.actionTaker.name }}
+            - name: VM_URL
+              value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
