@@ -104,6 +104,7 @@ rules:
 - apiGroups:
   - keda.sh
   resources:
+  - scaledjobs
   - scaledobjects
   verbs:
   - get
