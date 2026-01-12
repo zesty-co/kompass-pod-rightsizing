@@ -25,7 +25,7 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "v0.3.5"
+    tag: "v0.3.6"
   resources:
     requests:
       cpu: 100m
@@ -40,7 +40,7 @@ recommendationsMaker:
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "v0.3.5"
+    tag: "v0.3.6"
     args:
   port: 8088
   resources:
@@ -51,7 +51,7 @@ metricsExporter:
   name: "metrics-exporter"
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "v0.3.5"
+    tag: "v0.3.6"
     args:
   resources:
     requests:
