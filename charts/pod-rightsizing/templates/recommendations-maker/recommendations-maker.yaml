@@ -10,7 +10,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.recommendationsMaker.replicaCount | default 1 }}
   selector:
     matchLabels:
       app: {{ include "recommendations-maker.name" . }}
@@ -22,6 +22,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.recommendationsMaker.priorityClassName }}
+      priorityClassName: {{ .Values.recommendationsMaker.priorityClassName }}
+      {{- end }}
       {{- if .Values.global.nodeSelector }}
       nodeSelector:
       {{- toYaml .Values.global.nodeSelector | nindent 8 }}
@@ -42,6 +45,8 @@ spec:
               value: {{ include "kompass-pod-rightsizing-config.name" . }}
             - name: CM_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: LEADER_ELECTION_ENABLED
+              value: "{{ .Values.recommendationsMaker.leaderElection.enabled }}"
             - name: VM_URL
               value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
             - name: SAVE_QUERIES_TO_FILES
@@ -54,15 +59,6 @@ spec:
                   fieldPath: metadata.namespace
             {{- if and .Values.global.cxLogging .Values.global.cxLogging.enabled }}
             - name: CX_API_KEY
-              value: {{ .Values.cxLogging.apiKey }}
-            - name: CX_CLUSTER_NAME
-              value: {{ .Values.cxLogging.clusterName }}
-            - name: CORALOGIX_LOG_URL
-              value: {{ .Values.cxLogging.logUrl | default "https://ingress.eu2.coralogix.com:443/api/v1/logs" }}
-            - name: CORALOGIX_TIME_DELTA_URL
-              value: {{ .Values.cxLogging.timeDeltaUrl | default "https://ingress.eu2.coralogix.com:443/sdk/v1/time" }}
-            {{- else if and .Values.cxLogging .Values.cxLogging.enabled }}
-            - name: CX_API_KEY
               value: {{ .Values.global.cxLogging.apiKey }}
             - name: CX_CLUSTER_NAME
               value: {{ .Values.global.cxLogging.clusterName }}
@@ -70,6 +66,19 @@ spec:
               value: {{ .Values.global.cxLogging.logUrl | default "https://ingress.eu2.coralogix.com:443/api/v1/logs" }}
             - name: CORALOGIX_TIME_DELTA_URL
               value: {{ .Values.global.cxLogging.timeDeltaUrl | default "https://ingress.eu2.coralogix.com:443/sdk/v1/time" }}
+            - name: CORALOGIX_METRICS_URL
+              value: {{ .Values.global.cxLogging.metricsUrl }}
+            {{- else if and .Values.cxLogging .Values.cxLogging.enabled }}
+            - name: CX_API_KEY
+              value: {{ .Values.cxLogging.apiKey }}
+            - name: CX_CLUSTER_NAME
+              value: {{ .Values.cxLogging.clusterName }}
+            - name: CORALOGIX_LOG_URL
+              value: {{ .Values.cxLogging.logUrl | default "https://ingress.eu2.coralogix.com:443/api/v1/logs" }}
+            - name: CORALOGIX_TIME_DELTA_URL
+              value: {{ .Values.cxLogging.timeDeltaUrl | default "https://ingress.eu2.coralogix.com:443/sdk/v1/time" }}
+            - name: CORALOGIX_METRICS_URL
+              value: {{ .Values.cxLogging.metricsUrl }}
             {{- end }}
             {{- if and .Values.config .Values.config.excludeNamespaces }}
             - name: EXCLUDE_NAMESPACES
@@ -86,8 +95,22 @@ spec:
       volumes:
         - name: recommendations-storage
           emptyDir: {}
-      {{- with .Values.imagePullSecrets }}
+      {{- $globalPullSecrets := list }}
+      {{- if .Values.global.imagePullSecret.name }}
+      {{- $globalPullSecrets = append $globalPullSecrets (dict "name" .Values.global.imagePullSecret.name) }}
+      {{- end }}
+      {{- range .Values.global.imagePullSecrets }}
+      {{- $globalPullSecrets = append $globalPullSecrets . }}
+      {{- end }}
+      {{- $pullSecrets := $globalPullSecrets }}
+      {{- if and (hasKey .Values "imagePullSecrets") (gt (len .Values.imagePullSecrets) 0) }}
+      {{- $pullSecrets = .Values.imagePullSecrets }}
+      {{- end }}
+      {{- if hasKey .Values.recommendationsMaker "imagePullSecrets" }}
+      {{- $pullSecrets = .Values.recommendationsMaker.imagePullSecrets }}
+      {{- end }}
+      {{- if $pullSecrets }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml $pullSecrets | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "pod-rightsizing.serviceAccountName" . }}
