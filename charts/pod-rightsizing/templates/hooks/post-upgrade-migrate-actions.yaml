@@ -1,3 +1,5 @@
+{{- $hooksPodSecurityContext := include "pod-rightsizing.securityContext.pod" (dict "root" . "componentSecurityContext" dict) | fromYaml }}
+{{- $hooksSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" dict) | fromYaml }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -81,9 +83,17 @@ spec:
       tolerations:
       {{- toYaml .Values.global.tolerations | nindent 8 }}
       {{- end }}
+      {{- with $hooksPodSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: action-migration-post-upgrade
         image: {{ .Values.hooks.image.registry }}/{{ .Values.hooks.image.repository }}:{{ .Values.hooks.image.tag }}
+        {{- with $hooksSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         command:
         - /bin/bash
         - -c
