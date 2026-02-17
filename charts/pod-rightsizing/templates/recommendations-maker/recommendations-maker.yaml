@@ -1,3 +1,12 @@
+{{- $recommendationsMakerPodSecurityContext := include "pod-rightsizing.securityContext.pod" (dict "root" . "componentSecurityContext" .Values.recommendationsMaker.podSecurityContext) | fromYaml }}
+{{- $recommendationsMakerSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" .Values.recommendationsMaker.securityContext) | fromYaml }}
+{{- $recommendationsMakerPodLabels := include "pod-rightsizing.podTemplateLabels" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
+{{- $recommendationsMakerPodAnnotations := include "pod-rightsizing.podTemplateAnnotations" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
+{{- $recommendationsMakerAffinity := include "pod-rightsizing.affinity" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
+{{- $recommendationsMakerImagePullSecrets := include "pod-rightsizing.imagePullSecrets" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYamlArray }}
+{{- $recommendationsMakerTopologySpreadConstraints := include "pod-rightsizing.topologySpreadConstraints" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYamlArray }}
+{{- $recommendationsMakerAutomountServiceAccountToken := include "pod-rightsizing.automountServiceAccountToken" (dict "root" . "componentValues" .Values.recommendationsMaker) }}
+{{- $recommendationsMakerRuntimeClassName := include "pod-rightsizing.runtimeClassName" (dict "root" . "componentValues" .Values.recommendationsMaker) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,14 +25,28 @@ spec:
       app: {{ include "recommendations-maker.name" . }}
   template:
     metadata:
+      {{- with $recommendationsMakerPodAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         app: {{ include "recommendations-maker.name" . }}
+        {{- with $recommendationsMakerPodLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- with .Values.additionalLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       {{- if .Values.recommendationsMaker.priorityClassName }}
       priorityClassName: {{ .Values.recommendationsMaker.priorityClassName }}
+      {{- end }}
+      {{- if $recommendationsMakerRuntimeClassName }}
+      runtimeClassName: {{ $recommendationsMakerRuntimeClassName }}
+      {{- end }}
+      {{- with $recommendationsMakerPodSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- if .Values.global.nodeSelector }}
       nodeSelector:
@@ -32,6 +55,14 @@ spec:
       {{- if .Values.global.tolerations }}
       tolerations:
       {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- with $recommendationsMakerTopologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $recommendationsMakerAffinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Values.recommendationsMaker.name }}
@@ -87,6 +118,10 @@ spec:
           volumeMounts:
             - mountPath: /recommendations-data
               name: recommendations-storage
+          {{- with $recommendationsMakerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- include "pod-rightsizing.recommendationsMaker.resources" . | nindent 10 }}
           ports:
             - containerPort: 8088
@@ -95,22 +130,11 @@ spec:
       volumes:
         - name: recommendations-storage
           emptyDir: {}
-      {{- $globalPullSecrets := list }}
-      {{- if .Values.global.imagePullSecret.name }}
-      {{- $globalPullSecrets = append $globalPullSecrets (dict "name" .Values.global.imagePullSecret.name) }}
-      {{- end }}
-      {{- range .Values.global.imagePullSecrets }}
-      {{- $globalPullSecrets = append $globalPullSecrets . }}
-      {{- end }}
-      {{- $pullSecrets := $globalPullSecrets }}
-      {{- if and (hasKey .Values "imagePullSecrets") (gt (len .Values.imagePullSecrets) 0) }}
-      {{- $pullSecrets = .Values.imagePullSecrets }}
-      {{- end }}
-      {{- if hasKey .Values.recommendationsMaker "imagePullSecrets" }}
-      {{- $pullSecrets = .Values.recommendationsMaker.imagePullSecrets }}
-      {{- end }}
-      {{- if $pullSecrets }}
+      {{- with $recommendationsMakerImagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml $pullSecrets | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "pod-rightsizing.serviceAccountName" . }}
+      {{- if ne $recommendationsMakerAutomountServiceAccountToken "" }}
+      automountServiceAccountToken: {{ $recommendationsMakerAutomountServiceAccountToken }}
+      {{- end }}

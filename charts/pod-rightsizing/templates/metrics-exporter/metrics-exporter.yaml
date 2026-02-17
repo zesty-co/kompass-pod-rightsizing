@@ -1,3 +1,13 @@
+{{- if or (and .Values.global.cxLogging .Values.global.cxLogging.enabled) .Values.cxLogging.enabled }}
+{{- $metricsExporterPodSecurityContext := include "pod-rightsizing.securityContext.pod" (dict "root" . "componentSecurityContext" .Values.metricsExporter.podSecurityContext) | fromYaml }}
+{{- $metricsExporterSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" .Values.metricsExporter.securityContext) | fromYaml }}
+{{- $metricsExporterPodLabels := include "pod-rightsizing.podTemplateLabels" (dict "root" . "componentValues" .Values.metricsExporter) | fromYaml }}
+{{- $metricsExporterPodAnnotations := include "pod-rightsizing.podTemplateAnnotations" (dict "root" . "componentValues" .Values.metricsExporter) | fromYaml }}
+{{- $metricsExporterAffinity := include "pod-rightsizing.affinity" (dict "root" . "componentValues" .Values.metricsExporter) | fromYaml }}
+{{- $metricsExporterImagePullSecrets := include "pod-rightsizing.imagePullSecrets" (dict "root" . "componentValues" .Values.metricsExporter) | fromYamlArray }}
+{{- $metricsExporterTopologySpreadConstraints := include "pod-rightsizing.topologySpreadConstraints" (dict "root" . "componentValues" .Values.metricsExporter) | fromYamlArray }}
+{{- $metricsExporterAutomountServiceAccountToken := include "pod-rightsizing.automountServiceAccountToken" (dict "root" . "componentValues" .Values.metricsExporter) }}
+{{- $metricsExporterRuntimeClassName := include "pod-rightsizing.runtimeClassName" (dict "root" . "componentValues" .Values.metricsExporter) }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -19,13 +29,27 @@ spec:
       backoffLimit: 1
       template:
         metadata:
+          {{- with $metricsExporterPodAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           labels:
             app: {{ include "metrics-exporter.name" . }}
             {{- include "pod-rightsizing.labels" . | nindent 12 }}
+            {{- with $metricsExporterPodLabels }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
             {{- with .Values.additionalLabels }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
         spec:
+          {{- if $metricsExporterRuntimeClassName }}
+          runtimeClassName: {{ $metricsExporterRuntimeClassName }}
+          {{- end }}
+          {{- with $metricsExporterPodSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- if .Values.global.nodeSelector }}
           nodeSelector:
           {{- toYaml .Values.global.nodeSelector | nindent 12 }}
@@ -33,6 +57,14 @@ spec:
           {{- if .Values.global.tolerations }}
           tolerations:
           {{- toYaml .Values.global.tolerations | nindent 12 }}
+          {{- end }}
+          {{- with $metricsExporterTopologySpreadConstraints }}
+          topologySpreadConstraints:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $metricsExporterAffinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           containers:
             - name: metrics-exporter
@@ -70,24 +102,18 @@ spec:
                 {{- end }}
                 - name: CM_NAMESPACE
                   value: {{ .Release.Namespace }}
+              {{- with $metricsExporterSecurityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
               {{- include "pod-rightsizing.metricsExporter.resources" . | nindent 14 }}
           restartPolicy: Never
-          {{- $globalPullSecrets := list }}
-          {{- if .Values.global.imagePullSecret.name }}
-          {{- $globalPullSecrets = append $globalPullSecrets (dict "name" .Values.global.imagePullSecret.name) }}
-          {{- end }}
-          {{- range .Values.global.imagePullSecrets }}
-          {{- $globalPullSecrets = append $globalPullSecrets . }}
-          {{- end }}
-          {{- $pullSecrets := $globalPullSecrets }}
-          {{- if and (hasKey .Values "imagePullSecrets") (gt (len .Values.imagePullSecrets) 0) }}
-          {{- $pullSecrets = .Values.imagePullSecrets }}
-          {{- end }}
-          {{- if hasKey .Values.metricsExporter "imagePullSecrets" }}
-          {{- $pullSecrets = .Values.metricsExporter.imagePullSecrets }}
-          {{- end }}
-          {{- if $pullSecrets }}
+          {{- with $metricsExporterImagePullSecrets }}
           imagePullSecrets:
-            {{- toYaml $pullSecrets | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           serviceAccountName: {{ include "pod-rightsizing.metricsExporterServiceAccountName" . }}
+          {{- if ne $metricsExporterAutomountServiceAccountToken "" }}
+          automountServiceAccountToken: {{ $metricsExporterAutomountServiceAccountToken }}
+          {{- end }}
+{{- end }}

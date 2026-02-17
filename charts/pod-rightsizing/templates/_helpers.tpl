@@ -141,6 +141,178 @@ Get the VictoriaMetrics remote URL, with a default.
 {{- end -}}
 
 {{/*
+Build the effective pod security context for a component.
+Merge order (later wins): component.podSecurityContext -> global.podSecurityContext
+*/}}
+{{- define "pod-rightsizing.securityContext.pod" -}}
+{{- $root := .root -}}
+{{- $componentSecurityContext := default (dict) .componentSecurityContext -}}
+{{- $podSecurityContext := mergeOverwrite (deepCopy $componentSecurityContext) (deepCopy (default (dict) $root.Values.global.podSecurityContext)) -}}
+{{- $podSecurityContext = pick $podSecurityContext "fsGroup" "fsGroupChangePolicy" "runAsGroup" "runAsNonRoot" "runAsUser" "seLinuxOptions" "seccompProfile" "supplementalGroups" "supplementalGroupsPolicy" "sysctls" "windowsOptions" -}}
+{{- toYaml $podSecurityContext -}}
+{{- end -}}
+
+{{/*
+Build the effective container security context for a component.
+Merge order (later wins): component.securityContext -> global.securityContext
+*/}}
+{{- define "pod-rightsizing.securityContext.container" -}}
+{{- $root := .root -}}
+{{- $componentSecurityContext := default (dict) .componentSecurityContext -}}
+{{- $containerSecurityContext := mergeOverwrite (deepCopy $componentSecurityContext) (deepCopy (default (dict) $root.Values.global.securityContext)) -}}
+{{- $containerSecurityContext = pick $containerSecurityContext "allowPrivilegeEscalation" "appArmorProfile" "capabilities" "privileged" "procMount" "readOnlyRootFilesystem" "runAsGroup" "runAsNonRoot" "runAsUser" "seLinuxOptions" "seccompProfile" "windowsOptions" -}}
+{{- toYaml $containerSecurityContext -}}
+{{- end -}}
+
+{{/*
+Build the effective kube-rbac-proxy security context.
+Merge order (later wins): actionTaker.securityContext -> actionTaker.kubeRbacProxy.securityContext -> global.securityContext
+*/}}
+{{- define "pod-rightsizing.securityContext.actionTakerKubeRbacProxy" -}}
+{{- $root := .root -}}
+{{- $actionTakerSecurityContext := default (dict) .actionTakerSecurityContext -}}
+{{- $kubeRbacProxySecurityContext := default (dict) .kubeRbacProxySecurityContext -}}
+{{- $componentSecurityContext := mergeOverwrite (deepCopy $actionTakerSecurityContext) (deepCopy $kubeRbacProxySecurityContext) -}}
+{{- include "pod-rightsizing.securityContext.container" (dict "root" $root "componentSecurityContext" $componentSecurityContext) -}}
+{{- end -}}
+
+{{/*
+Merge component and global maps.
+Merge order (later wins): component -> global
+*/}}
+{{- define "pod-rightsizing.mergeMaps.componentGlobal" -}}
+{{- $componentMap := default (dict) .component -}}
+{{- $globalMap := default (dict) .global -}}
+{{- toYaml (mergeOverwrite (deepCopy $componentMap) (deepCopy $globalMap)) -}}
+{{- end -}}
+
+{{/*
+Build effective pod labels for a component.
+Merge order (later wins): component.podLabels -> global.podLabels
+*/}}
+{{- define "pod-rightsizing.podTemplateLabels" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- include "pod-rightsizing.mergeMaps.componentGlobal" (dict "component" (default (dict) $componentValues.podLabels) "global" (default (dict) $root.Values.global.podLabels)) -}}
+{{- end -}}
+
+{{/*
+Build effective pod annotations for a component.
+Merge order (later wins): component.podAnnotations -> global.podAnnotations
+*/}}
+{{- define "pod-rightsizing.podTemplateAnnotations" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- include "pod-rightsizing.mergeMaps.componentGlobal" (dict "component" (default (dict) $componentValues.podAnnotations) "global" (default (dict) $root.Values.global.podAnnotations)) -}}
+{{- end -}}
+
+{{/*
+Build effective affinity for a component.
+Merge order (later wins): baseAffinity -> component.affinity -> global.affinity
+*/}}
+{{- define "pod-rightsizing.affinity" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- $baseAffinity := default (dict) .baseAffinity -}}
+{{- $effectiveAffinity := mergeOverwrite (deepCopy $baseAffinity) (deepCopy (default (dict) $componentValues.affinity)) (deepCopy (default (dict) $root.Values.global.affinity)) -}}
+{{- toYaml $effectiveAffinity -}}
+{{- end -}}
+
+{{/*
+Default action-taker affinity.
+*/}}
+{{- define "pod-rightsizing.actionTaker.defaultAffinity" -}}
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: kubernetes.io/arch
+            operator: In
+            values:
+              - amd64
+              - arm64
+          - key: kubernetes.io/os
+            operator: In
+            values:
+              - linux
+{{- end -}}
+
+{{/*
+Build effective imagePullSecrets for a component.
+Precedence: component.imagePullSecrets -> global.imagePullSecret/global.imagePullSecrets
+When global secrets are defined, they are used and override component values.
+*/}}
+{{- define "pod-rightsizing.imagePullSecrets" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- $componentSecrets := default (list) $componentValues.imagePullSecrets -}}
+{{- $legacySecrets := default (list) $root.Values.imagePullSecrets -}}
+{{- $globalSecrets := list -}}
+{{- if $root.Values.global.imagePullSecret.name -}}
+{{- $globalSecrets = append $globalSecrets (dict "name" $root.Values.global.imagePullSecret.name) -}}
+{{- end -}}
+{{- range (default (list) $root.Values.global.imagePullSecrets) -}}
+{{- $globalSecrets = append $globalSecrets . -}}
+{{- end -}}
+{{- if gt (len $globalSecrets) 0 -}}
+{{- toYaml $globalSecrets -}}
+{{- else if gt (len $componentSecrets) 0 -}}
+{{- toYaml $componentSecrets -}}
+{{- else if gt (len $legacySecrets) 0 -}}
+{{- toYaml $legacySecrets -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Build effective topologySpreadConstraints for a component.
+Precedence: component.topologySpreadConstraints -> global.topologySpreadConstraints
+When global constraints are defined, they are used and override component values.
+*/}}
+{{- define "pod-rightsizing.topologySpreadConstraints" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- $componentConstraints := default (list) $componentValues.topologySpreadConstraints -}}
+{{- $globalConstraints := default (list) $root.Values.global.topologySpreadConstraints -}}
+{{- if gt (len $globalConstraints) 0 -}}
+{{- toYaml $globalConstraints -}}
+{{- else if gt (len $componentConstraints) 0 -}}
+{{- toYaml $componentConstraints -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Build effective automountServiceAccountToken for a component.
+Precedence (later wins): component.automountServiceAccountToken -> global.automountServiceAccountToken
+Uses hasKey so explicit false is honored.
+*/}}
+{{- define "pod-rightsizing.automountServiceAccountToken" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- if hasKey (default (dict) $root.Values.global) "automountServiceAccountToken" -}}
+{{- get $root.Values.global "automountServiceAccountToken" -}}
+{{- else if hasKey $componentValues "automountServiceAccountToken" -}}
+{{- get $componentValues "automountServiceAccountToken" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Build effective runtimeClassName for a component.
+Precedence: component.runtimeClassName -> global.runtimeClassName
+When global runtimeClassName is defined, it overrides component values.
+*/}}
+{{- define "pod-rightsizing.runtimeClassName" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- $componentRuntimeClassName := default "" $componentValues.runtimeClassName -}}
+{{- $globalRuntimeClassName := default "" $root.Values.global.runtimeClassName -}}
+{{- if $globalRuntimeClassName -}}
+{{- $globalRuntimeClassName -}}
+{{- else if $componentRuntimeClassName -}}
+{{- $componentRuntimeClassName -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Enforce minimum resource value
 */}}
 {{- define "pod-rightsizing.enforceMin" -}}

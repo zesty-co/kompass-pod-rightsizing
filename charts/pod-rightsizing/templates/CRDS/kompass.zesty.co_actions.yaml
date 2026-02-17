@@ -136,9 +136,19 @@ spec:
                       initialCpuUtilization:
                         format: int32
                         type: integer
+                      initialMaxReplica:
+                        format: int32
+                        type: integer
                       initialMemoryUtilization:
                         format: int32
                         type: integer
+                      initialMinReplica:
+                        format: int32
+                        type: integer
+                      name:
+                        type: string
+                      pdbConflict:
+                        type: boolean
                       type:
                         description: HpaKind describes the reason for this action
                         enum:
@@ -170,6 +180,53 @@ spec:
               executionTimestamp:
                 format: date-time
                 type: string
+              hpaInitialValues:
+                properties:
+                  currentCpuUtilization:
+                    format: int32
+                    type: integer
+                  currentMaxReplica:
+                    format: int32
+                    type: integer
+                  currentMemoryUtilization:
+                    format: int32
+                    type: integer
+                  currentMinReplica:
+                    format: int32
+                    type: integer
+                  desiredCpuUtilization:
+                    format: int32
+                    type: integer
+                  desiredMaxReplica:
+                    format: int32
+                    type: integer
+                  desiredMemoryUtilization:
+                    format: int32
+                    type: integer
+                  desiredMinReplica:
+                    format: int32
+                    type: integer
+                  initialCpuUtilization:
+                    format: int32
+                    type: integer
+                  initialMaxReplica:
+                    format: int32
+                    type: integer
+                  initialMemoryUtilization:
+                    format: int32
+                    type: integer
+                  initialMinReplica:
+                    format: int32
+                    type: integer
+                  name:
+                    type: string
+                  type:
+                    description: HpaKind describes the reason for this action
+                    enum:
+                    - HPA
+                    - Keda
+                    type: string
+                type: object
               hpaUpdated:
                 type: boolean
               phase:
