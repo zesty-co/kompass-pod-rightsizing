@@ -121,6 +121,9 @@ spec:
                       currentMinReplica:
                         format: int32
                         type: integer
+                      currentReplica:
+                        format: int32
+                        type: integer
                       desiredCpuUtilization:
                         format: int32
                         type: integer
@@ -194,6 +197,9 @@ spec:
                   currentMinReplica:
                     format: int32
                     type: integer
+                  currentReplica:
+                    format: int32
+                    type: integer
                   desiredCpuUtilization:
                     format: int32
                     type: integer
@@ -220,6 +226,8 @@ spec:
                     type: integer
                   name:
                     type: string
+                  pdbConflict:
+                    type: boolean
                   type:
                     description: HpaKind describes the reason for this action
                     enum:

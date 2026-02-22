@@ -10,3 +10,5 @@ data:
 {{ .Files.Get "dashboards/jobs-dashboard.json" | indent 4 }}
   rightsizing-dashboard.json: |-
 {{ .Files.Get "dashboards/rightsizing-dashboard.json" | indent 4 }}
+  horizontal-scaling-dashboard.json: |-
+{{ .Files.Get "dashboards/horizontal-scaling-dashboard.json" | indent 4 }}
