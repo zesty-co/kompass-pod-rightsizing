@@ -47,9 +47,9 @@ actionTaker:
         - ALL
   kubeRbacProxy:
     image:
-      registry: gcr.io
-      repository: kubebuilder/kube-rbac-proxy
-      tag: v0.13.1
+      registry: 672188301118.dkr.ecr.eu-west-1.amazonaws.com
+      repository: docker-hub/bitnami/kube-rbac-proxy
+      tag: latest
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
@@ -58,7 +58,7 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: v0.4.2
+    tag: v0.4.3
   resources:
     requests:
       cpu: 100m
@@ -86,7 +86,7 @@ recommendationsMaker:
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: v0.4.2
+    tag: v0.4.3
     args:
   port: 8088
   resources:
@@ -106,7 +106,7 @@ metricsExporter:
   securityContext: {}
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: v0.4.2
+    tag: v0.4.3
     args:
   resources:
     requests:
