@@ -454,7 +454,7 @@
             "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "avg(kompass_rs_recommendations{mode=\"virtual\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})",
+          "expr": "avg(kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "without rs",
@@ -604,7 +604,7 @@
             "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "clamp_min(\nsum(\n((kompass_rs_recommendations{mode=\"virtual\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})\n- \non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\n(kompass_rs_recommendations{mode=\"virtual\",resource_source=\"desired\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"}))\n)\n/\non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\nsum((kompass_rs_recommendations{mode=\"virtual\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})),\n0)",
+          "expr": "clamp_min(\nsum(\n((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})\n- \non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\n(kompass_rs_recommendations{mode=\"active\",resource_source=\"desired\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"}))\n)\n/\non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\nsum((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})),\n0)",
           "hide": false,
           "instant": false,
           "legendFormat": "actual",
@@ -617,7 +617,7 @@
             "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "  count(max(kompass_rs_recommendations{\n    mode=\"virtual\",\n    resource_source=\"current\",\n    container=\"$container\",\n    namespace=\"$namespace\",\n    resource_type=\"cpu\",\n    workload_kind=\"job\",\n    resource_id=\"$namespace;$workload_name;jobsgroup\"\n  })) ",
+          "expr": "  count(max(kompass_rs_recommendations{\n    mode=\"active\",\n    resource_source=\"current\",\n    container=\"$container\",\n    namespace=\"$namespace\",\n    resource_type=\"cpu\",\n    workload_kind=\"job\",\n    resource_id=\"$namespace;$workload_name;jobsgroup\"\n  })) ",
           "hide": true,
           "instant": false,
           "legendFormat": "__auto",
@@ -1004,7 +1004,7 @@
             "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "avg(kompass_rs_recommendations{mode=\"virtual\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})/$GiB",
+          "expr": "avg(kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})/$GiB",
           "hide": false,
           "instant": false,
           "legendFormat": "without rs",
@@ -1141,7 +1141,7 @@
             "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "clamp_min(\nsum(\n((kompass_rs_recommendations{mode=\"virtual\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})\n- \non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\n(kompass_rs_recommendations{mode=\"virtual\",resource_source=\"desired\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"}))\n)\n/\non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\nsum((kompass_rs_recommendations{mode=\"virtual\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})),\n0)",
+          "expr": "clamp_min(\nsum(\n((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})\n- \non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\n(kompass_rs_recommendations{mode=\"active\",resource_source=\"desired\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"}))\n)\n/\non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\nsum((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})),\n0)",
           "hide": false,
           "instant": false,
           "legendFormat": "actual",
@@ -1448,14 +1448,14 @@
           "text": "workers-job",
           "value": "workers-job"
         },
-        "definition": "kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\"}",
+        "definition": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\"}) by (workload_name))[24h])",
         "description": "",
         "label": "job group",
         "name": "workload_name",
         "options": [],
         "query": {
-          "qryType": 4,
-          "query": "kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\"}",
+          "qryType": 3,
+          "query": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\"}) by (workload_name))[24h])",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -1467,14 +1467,14 @@
           "text": "batch-worker-0",
           "value": "batch-worker-0"
         },
-        "definition": "kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\", workload_kind=\"jobsgroup\"}",
+        "definition": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\" ,workload_kind=\"jobsgroup\"}) by (container))[24h])",
         "description": "",
         "label": "container",
         "name": "container",
         "options": [],
         "query": {
-          "qryType": 4,
-          "query": "kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\", workload_kind=\"jobsgroup\"}",
+          "qryType": 3,
+          "query": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\" ,workload_kind=\"jobsgroup\"}) by (container))[24h])",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -1537,6 +1537,6 @@
   "timezone": "browser",
   "title": "Pod-RightSizing Jobs",
   "uid": "pod-rightsizing-jobs",
-  "version": 76,
+  "version": 1,
   "weekStart": ""
 }

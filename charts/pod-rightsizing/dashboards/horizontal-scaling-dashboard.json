@@ -1,0 +1,1096 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "VictoriaMetrics"
+                },
+                "enable": true,
+                "expr": "changes(kompass_rs_recommendations{workload_name=\"$workload_name\", container=\"$container\", type=\"orchestration\", mode=\"live\"}[1m])",
+                "hide": false,
+                "iconColor": "blue",
+                "name": "Orchestrations",
+                "tagKeys": "",
+                "textFormat": "",
+                "titleFormat": "Orchestration {{container}}"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "VictoriaMetrics"
+                },
+                "enable": true,
+                "expr": "changes(kompass_rs_recommendations{workload_name=\"$workload_name\", container=\"$container\", type=\"rollback\", mode=\"live\"}[1m])",
+                "hide": false,
+                "iconColor": "red",
+                "name": "Rollbacks",
+                "titleFormat": "Rollback {{container}}"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 5,
+    "links": [],
+    "panels": [
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total Requests"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 10
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total Usage"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 50
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Desired Requests At Min Replica Count"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "yellow",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "id": 10,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.5.2",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum(rate(container_cpu_usage_seconds_total{container=\"$container\", namespace=\"$namespace\"}[1m]))",
+                    "legendFormat": "Total Usage",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "P4169E866C3094E38"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\", container=\"$container\", namespace=\"$namespace\"})",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "Total Requests",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "P4169E866C3094E38"
+                    },
+                    "editorMode": "code",
+                    "expr": " min(last_over_time(\n    (\n      (\n        kube_pod_container_resource_requests{\n          container=\"$container\",resource=\"cpu\"\n        }\n          * on(namespace,pod) group_left(workload_name,workload_kind)\n        kompass_pod_info{\n          created_by_name=\"$workload_name\",\n          namespace=\"$namespace\"\n        }\n      )\n        * on(namespace,workload_name,workload_kind) group_left()\n      max(\n        kompass_rs_recommendations{\n          resource_type=\"hpa_min_replica\",\n          workload_name=\"$workload_name\",\n          namespace=\"$namespace\",\n          resource_source=\"desired\",\n          mode=\"$recommendation_mode\"\n        }\n      ) by(namespace,workload_name,workload_kind)\n    )[30m:])\n) by(namespace,workload_name,workload_kind)",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "Desired Requests At Min Replica Count",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Total CPU Usage",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total Requests"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 10
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total Usage"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 50
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "id": 11,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.5.2",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": " sum by (namespace, container)(container_memory_working_set_bytes{namespace=\"$namespace\", container=\"$container\"}) / $bytes_to_gb",
+                    "legendFormat": "Total Usage",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "P4169E866C3094E38"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (namespace, container)(kube_pod_container_resource_requests{resource=\"memory\", namespace=\"$namespace\", container=\"$container\"}) / $bytes_to_gb",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "Total Requests",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "P4169E866C3094E38"
+                    },
+                    "editorMode": "code",
+                    "expr": " min(last_over_time(\n    (\n      (\n        kube_pod_container_resource_requests{\n          container=\"$container\",resource=\"memory\"\n        }\n          * on(namespace,pod) group_left(workload_name,workload_kind)\n        kompass_pod_info{\n          created_by_name=\"$workload_name\",\n          namespace=\"$namespace\"\n        }\n      )\n        * on(namespace,workload_name,workload_kind) group_left()\n      max(\n        kompass_rs_recommendations{\n          resource_type=\"hpa_min_replica\",\n          workload_name=\"$workload_name\",\n          namespace=\"$namespace\",\n          resource_source=\"desired\",\n          mode=\"$recommendation_mode\"\n        }\n      ) by(namespace,workload_name,workload_kind)\n    )[30m:])\n) by(namespace,workload_name,workload_kind) / $bytes_to_gb",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "Desired Requests At Min Replica Count",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Total Memory Usage",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "VictoriaMetrics"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": 3600000,
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Min Replica Count"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 9
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "count(kube_pod_container_info{container=\"$container\", namespace=\"$namespace\"} * on (namespace, pod, container) group_left(workload_name) kompass_pod_info{workload_name=\"$workload_name\"})",
+                    "instant": false,
+                    "legendFormat": "Current Replica Count",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "P4169E866C3094E38"
+                    },
+                    "editorMode": "code",
+                    "expr": "kube_horizontalpodautoscaler_spec_min_replicas{namespace=\"$namespace\"}\n  * on (namespace, horizontalpodautoscaler)\n    group_left(scaletargetref_kind, scaletargetref_name)\n    kube_horizontalpodautoscaler_info{\n      namespace=\"$namespace\",\n      scaletargetref_kind=\"Deployment\",\n      scaletargetref_name=\"$workload_name\"\n    }\n ",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "Min Replica Count",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Replicas Count",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "VictoriaMetrics"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": 3600000,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "Dry Run HPA_CPU"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#73bf696e",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "Dry Run HPA_Memory"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#fade2a6e",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 12,
+                "y": 9
+            },
+            "id": 6,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "kube_horizontalpodautoscaler_spec_target_metric{metric_name=\"cpu\", namespace=\"$namespace\"} * on (horizontalpodautoscaler) group_left () kube_horizontalpodautoscaler_info{scaletargetref_name=\"$workload_name\", namespace=\"$namespace\"}",
+                    "legendFormat": "HPA CPU",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "kube_horizontalpodautoscaler_spec_target_metric{metric_name=\"memory\", namespace=\"$namespace\"} * on (horizontalpodautoscaler) group_left () kube_horizontalpodautoscaler_info{scaletargetref_name=\"$workload_name\", namespace=\"$namespace\"}",
+                    "hide": false,
+                    "legendFormat": "HPA Memory",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "kompass_rs_recommendations{workload_name=\"$workload_name\", resource_type=\"hpa_cpu\", mode=\"$recommendation_mode\", workload_name=\"$workload_name\", resource_source=\"desired\", namespace=\"$namespace\"}",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "Desired Hpa CPU",
+                    "range": true,
+                    "refId": "HPA_CPU_desired"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "kompass_rs_recommendations{workload_name=\"$workload_name\", resource_type=\"hpa_memory\", mode=\"$recommendation_mode\", workload_name=\"$workload_name\", resource_source=\"desired\", namespace=\"$namespace\"}",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "Desired Hpa Memory",
+                    "range": true,
+                    "refId": "HPA_Memory_desired"
+                }
+            ],
+            "title": "HPA Targets",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "VictoriaMetrics"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "Failed Requests"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 62
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "dark-red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 18,
+                "y": 9
+            },
+            "id": 9,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(increase(container_cpu_cfs_throttled_seconds_total{container=\"$container\", namespace=\"$namespace\"}[5m]) * on (container, pod, namespace) group_left (created_by_name, created_by_kind) max(max_over_time(kompass_pod_info{workload_name=\"$workload_name\", container=\"$container\", namespace=\"$namespace\"}[5m])) by (container, pod, created_by_name, created_by_kind, namespace)) by (container, namespace, created_by_name, created_by_kind)",
+                    "hide": false,
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "CPU Throttling time"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum((delta(kube_pod_container_status_restarts_total{container=\"$container\", namespace=\"$namespace\"}[1m])  > 0) * on (pod, container, namespace) (kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\", container=\"$container\", namespace=\"$namespace\"}  > 0) * on (container, pod, namespace) group_left (created_by_name, created_by_kind) max(kompass_pod_info{workload_name=\"$workload_name\", container=\"$container\", namespace=\"$namespace\"}) by (container, pod, namespace, created_by_name, created_by_kind)) by (container, created_by_name, created_by_kind, namespace)",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "OOM Events"
+                }
+            ],
+            "title": "Events (Throttling/OOM)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "VictoriaMetrics"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "color-text",
+                            "wrapText": false
+                        },
+                        "filterable": true,
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 170
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 11,
+                "w": 24,
+                "x": 0,
+                "y": 17
+            },
+            "id": 7,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "enablePagination": true,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Time"
+                    }
+                ]
+            },
+            "pluginVersion": "11.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "expr": "kompass_rs_recommendations{workload_name=\"$workload_name\", mode=\"$recommendation_mode\", namespace=\"$namespace\", container=\"$container\"}[$__range]",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "refId": "A"
+                }
+            ],
+            "title": "Audit table",
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "VictoriaMetrics"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 28
+            },
+            "id": 8,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "pluginVersion": "11.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "VictoriaMetrics"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "kompass_rs_errors",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Errors",
+            "type": "table"
+        }
+    ],
+    "preload": false,
+    "refresh": "5s",
+    "schemaVersion": 40,
+    "tags": [],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "text": "default",
+                    "value": "default"
+                },
+                "definition": "query_result(kube_namespace_status_phase{phase=\"Active\"})",
+                "label": "Namespace",
+                "name": "namespace",
+                "options": [],
+                "query": {
+                    "qryType": 3,
+                    "query": "query_result(kube_namespace_status_phase{phase=\"Active\"})",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "/.*namespace=\"([^\"]*).*/",
+                "type": "query"
+            },
+            {
+                "current": {},
+                "definition": "query_result(sort(label_replace(kube_deployment_metadata_generation{namespace=\"$namespace\"}, \"name\", \"$1\", \"deployment\", \"(.+)\") or label_replace(kube_statefulset_metadata_generation{namespace=\"$namespace\"}, \"name\", \"$1\", \"statefulset\", \"(.+)\") or label_replace(kube_daemonset_metadata_generation{namespace=\"$namespace\"}, \"name\", \"$1\", \"daemonset\", \"(.+)\")))",
+                "label": "Workload Name",
+                "name": "workload_name",
+                "options": [],
+                "query": {
+                    "qryType": 3,
+                    "query": "query_result(sort(label_replace(kube_deployment_metadata_generation{namespace=\"$namespace\"}, \"name\", \"$1\", \"deployment\", \"(.+)\") or label_replace(kube_statefulset_metadata_generation{namespace=\"$namespace\"}, \"name\", \"$1\", \"statefulset\", \"(.+)\") or label_replace(kube_daemonset_metadata_generation{namespace=\"$namespace\"}, \"name\", \"$1\", \"daemonset\", \"(.+)\")))",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "/.*name=\"([^\"]*).*/",
+                "type": "query"
+            },
+            {
+                "current": {},
+                "definition": "query_result(kube_pod_container_info{namespace=\"$namespace\"} * on(pod) group_left(created_by_name) kompass_pod_info{created_by_name=\"$workload_name\", namespace=\"$namespace\"})",
+                "name": "container",
+                "options": [],
+                "query": {
+                    "qryType": 3,
+                    "query": "query_result(kube_pod_container_info{namespace=\"$namespace\"} * on(pod) group_left(created_by_name) kompass_pod_info{created_by_name=\"$workload_name\", namespace=\"$namespace\"})",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "/container=\"([^\"]*)\"/",
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "variants",
+                    "value": "variants"
+                },
+                "label": "Recommendation Mode",
+                "name": "recommendation_mode",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "variants",
+                        "value": "variants"
+                    },
+                    {
+                        "selected": false,
+                        "text": "live",
+                        "value": "live"
+                    }
+                ],
+                "query": "variants,live",
+                "type": "custom"
+            },
+            {
+                "current": {
+                    "text": "1024 / 1024 / 1024",
+                    "value": "1024 / 1024 / 1024"
+                },
+                "description": "",
+                "hide": 2,
+                "label": "bytes_to_gb",
+                "name": "bytes_to_gb",
+                "query": "1024 / 1024 / 1024",
+                "skipUrlSync": true,
+                "type": "constant"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "5s"
+        ]
+    },
+    "timezone": "browser",
+    "title": "Horizontal Scaling Dashboard",
+    "uid": "d86fc2f1-c942-4sc3-b575-93345113be9d",
+    "version": 1,
+    "weekStart": ""
+}
