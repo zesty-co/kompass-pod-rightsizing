@@ -40,11 +40,15 @@ actionTaker:
   # automountServiceAccountToken: true
   podSecurityContext:
     runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
       drop:
         - ALL
+    seccompProfile:
+      type: RuntimeDefault
   kubeRbacProxy:
     image:
       registry: 672188301118.dkr.ecr.eu-west-1.amazonaws.com
@@ -55,6 +59,8 @@ actionTaker:
       capabilities:
         drop:
           - ALL
+      seccompProfile:
+        type: RuntimeDefault
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
@@ -79,8 +85,24 @@ recommendationsMaker:
   affinity: {}
   topologySpreadConstraints: []
   # automountServiceAccountToken: true
+  # Pod-level security context applied to the recommendations-maker pod.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext: {}
+  # Example:
+  # podSecurityContext:
+  #   runAsNonRoot: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  # Container-level security context applied to the recommendations-maker container.
   securityContext: {}
+  # Example:
+  # securityContext:
+  #   allowPrivilegeEscalation: false
+  #   capabilities:
+  #     drop:
+  #       - ALL
+  #   seccompProfile:
+  #     type: RuntimeDefault
   leaderElection:
     enabled: false
   name: "recommendations-maker"
@@ -102,8 +124,24 @@ metricsExporter:
   affinity: {}
   topologySpreadConstraints: []
   # automountServiceAccountToken: true
+  # Pod-level security context applied to the metrics-exporter pod.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext: {}
+  # Example:
+  # podSecurityContext:
+  #   runAsNonRoot: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  # Container-level security context applied to the metrics-exporter container.
   securityContext: {}
+  # Example:
+  # securityContext:
+  #   allowPrivilegeEscalation: false
+  #   capabilities:
+  #     drop:
+  #       - ALL
+  #   seccompProfile:
+  #     type: RuntimeDefault
   image:
     name: "/pod-rightsizing/metrics-exporter"
     tag: v0.4.4
