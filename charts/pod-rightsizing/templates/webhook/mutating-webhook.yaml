@@ -132,6 +132,7 @@ webhooks:
     - rollouts
   sideEffects: None
 {{- if .Capabilities.APIVersions.Has "argoproj.io/v1alpha1" }}
+{{- if .Values.actionTaker.webhooks.application.enabled }}
 - admissionReviewVersions:
   - v1
   clientConfig:
@@ -152,5 +153,6 @@ webhooks:
     resources:
     - applications
   sideEffects: None
+{{- end }}
 {{- end }}
 {{ end }}
