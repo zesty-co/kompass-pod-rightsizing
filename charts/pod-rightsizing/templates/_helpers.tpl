@@ -42,6 +42,13 @@ Create the name of the kompass rightsizing config map
 {{- end }}
 
 {{/*
+Create the name of the kompass rightsizing grafana dashboard config map
+*/}}
+{{- define "kompass-pod-rightsizing-grafana-dashboard-config.name" -}}
+{{- printf "%s-%s" (include "name" .) "grafana-dashboard" }}
+{{- end }}
+
+{{/*
 Create the name of the kompass rightsizing initial values BU config map
 */}}
 {{- define "kompass-pod-rightsizing-initial-values-config.name" -}}
