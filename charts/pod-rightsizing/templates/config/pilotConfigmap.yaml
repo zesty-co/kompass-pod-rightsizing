@@ -5,20 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
     recommendationsInterval: {{ (.Values.config).recommendationsInterval | default "30m" | quote }}
-    cooldownPeriod: {{ (.Values.config).cooldownPeriod | default "120m" | quote }}
     cooldownBetweenActions: {{ (.Values.config).cooldownBetweenActions | default "2m" | quote }}
-    dataCoveragePercentage: {{ (.Values.config).dataCoveragePercentage | default "80" | quote }}
-    lookbackPeriod: {{ (.Values.config).lookbackPeriod | default "1d" | quote }}
     hpaLookbackPeriod: {{ (.Values.config).hpaLookbackPeriod | default "3m" | quote }}
     bypassHpaVpaConflictValidator: {{ (.Values.config).bypassHpaVpaConflictValidator | default "true" | quote }}
-
-    memoryImpactPercentage: {{ (.Values.config).memoryImpactPercentage | default "10" | quote }}
-    minimumMemoryStepForScaleUp: {{ (.Values.config).minimumMemoryStepForScaleUp | default "256Mi" | quote }}
-    minimumMemoryValueForScaleDown: {{ (.Values.config).minimumMemoryValueForScaleDown | default "256Mi" | quote }}
-
-    cpuImpactPercentage: {{ (.Values.config).cpuImpactPercentage | default "10" | quote }}
-    minimumCPUStepForScaleUp: {{ (.Values.config).minimumCPUStepForScaleUp | default "100m" | quote }}
-    minimumCPUValueForScaleDown: {{ (.Values.config).minimumCPUValueForScaleDown | default "10m" | quote }}
 
     hpaThresholdCpuLimit: {{ (.Values.config).hpaThresholdCpuLimit | default "0.9" | quote }}
     hpaThresholdCpuRequest: {{ (.Values.config).hpaThresholdCpuRequest | default "1.1" | quote }}
@@ -28,24 +17,12 @@ data:
     hpaMaxValue: {{ (.Values.config).hpaMaxValue | default "200" | quote }}
     hpaMinValue: {{ (.Values.config).hpaMinValue | default "70" | quote }}
 
-    ignoreCPUThrottlingEvent: {{ (.Values.config).ignoreCPUThrottlingEvent | default "false" | quote }}
-    ignoreOOMEvent: {{ (.Values.config).ignoreOOMEvent | default "false" | quote }}
-
     failedActionRetriesAmount: {{ (.Values.config).failedActionRetriesAmount | default "1" | quote }}
 
     resourceIdsQueryChunkSize: {{ (.Values.config).resourceIdsQueryChunkSize | default "30" | quote }}
-
-    buffers: |
-{{- if and .Values.config (.Values.config).buffers }}
-{{ (.Values.config).buffers | nindent 6 }}
-{{- else }}
-      - name: Default
-        buffer: 0.2
-      - name: Conservative
-        buffer: 0.3
-      - name: Aggressive
-        buffer: 0.2
-{{- end }}
+    
+    builtinPolicies: |
+{{ toYaml .Values.config.builtinPolicies | indent 6 }}
 
     throttlingRollbackTimeRange: |
 {{- if and .Values.config (.Values.config).throttlingRollbackTimeRange }}

@@ -1,4 +1,3 @@
-{{- if .Values.enabled }}
 {{- $actionTakerPodSecurityContext := include "pod-rightsizing.securityContext.pod" (dict "root" . "componentSecurityContext" .Values.actionTaker.podSecurityContext) | fromYaml }}
 {{- $actionTakerSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" .Values.actionTaker.securityContext) | fromYaml }}
 {{- $actionTakerKubeRbacProxySecurityContext := include "pod-rightsizing.securityContext.actionTakerKubeRbacProxy" (dict "root" . "actionTakerSecurityContext" .Values.actionTaker.securityContext "kubeRbacProxySecurityContext" .Values.actionTaker.kubeRbacProxy.securityContext) | fromYaml }}
@@ -102,9 +101,20 @@ spec:
             - --webhook-cert-path=/tmp/k8s-webhook-server/serving-certs
             - --releaseNamespace={{ .Release.Namespace }}
             - --configMapName={{ include "kompass-pod-rightsizing-config.name" . }}
+            - --server-port={{ .Values.actionTaker.serverPort }}
+            - --image-tag={{ .Values.actionTaker.image.tag }}
+            - --rightsizing-enabled={{ .Values.enabled }}
+            {{- if .Values.actionTaker.image.args }}
+            {{- range .Values.actionTaker.image.args }}
+            - {{ . }}
+            {{- end }}
+            {{- end }}
           ports:
             - containerPort: 9443
               name: webhook-server
+              protocol: TCP
+            - containerPort: {{ .Values.actionTaker.serverPort }}
+              name: http-server
               protocol: TCP
           volumeMounts:
             - mountPath: /tmp/k8s-webhook-server/serving-certs
@@ -113,8 +123,14 @@ spec:
           command:
             - /action-taker
           env:
+            {{- if eq .Values.actionTaker.enableWebhooks false }}
             - name: ENABLE_WEBHOOKS
-              value: "true"
+              value: "false"
+            {{- end }}
+            {{- if eq .Values.actionTaker.syncBuiltinPolicies false }}
+            - name: SYNC_BUILTIN_POLICIES
+              value: "false"
+            {{- end }}
             - name: ENABLE_APPLICATION_WEBHOOK
               value: {{ .Values.actionTaker.webhooks.application.enabled | quote }}
             - name: CM_NAME
@@ -136,23 +152,31 @@ spec:
               value: {{ .Values.global.cxLogging.apiKey }}
             - name: CX_CLUSTER_NAME
               value: {{ .Values.global.cxLogging.clusterName }}
-            - name: CORALOGIX_LOG_URL
-              value: {{ .Values.global.cxLogging.logUrl | default "https://ingress.eu2.coralogix.com:443/api/v1/logs" }}
-            - name: CORALOGIX_TIME_DELTA_URL
-              value: {{ .Values.global.cxLogging.timeDeltaUrl | default "https://ingress.eu2.coralogix.com:443/sdk/v1/time" }}
             - name: CORALOGIX_METRICS_URL
               value: {{ .Values.global.cxLogging.metricsUrl }}
+            - name: CORALOGIX_INGRESS_URL
+              value: {{ .Values.global.cxLogging.ingressUrl }}
             {{- else if and .Values.cxLogging .Values.cxLogging.enabled }}
             - name: CX_API_KEY
               value: {{ .Values.cxLogging.apiKey }}
             - name: CX_CLUSTER_NAME
               value: {{ .Values.cxLogging.clusterName }}
-            - name: CORALOGIX_LOG_URL
-              value: {{ .Values.cxLogging.logUrl | default "https://ingress.eu2.coralogix.com:443/api/v1/logs" }}
-            - name: CORALOGIX_TIME_DELTA_URL
-              value: {{ .Values.cxLogging.timeDeltaUrl | default "https://ingress.eu2.coralogix.com:443/sdk/v1/time" }}
             - name: CORALOGIX_METRICS_URL
               value: {{ .Values.cxLogging.metricsUrl }}
+            - name: CORALOGIX_INGRESS_URL
+              value: {{ .Values.cxLogging.ingressUrl }}
+            {{- end }}
+            - name: SERVICE_ACCOUNT_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: RIGHTSIZING_SECRET_NAME
+              value: {{ .Values.secret }}
+            {{- if .Values.actionTaker.env }}
+            {{- range .Values.actionTaker.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
             {{- end }}
           imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
           livenessProbe:
@@ -185,4 +209,3 @@ spec:
       automountServiceAccountToken: {{ $actionTakerAutomountServiceAccountToken }}
       {{- end }}
       terminationGracePeriodSeconds: 10
-{{- end }}

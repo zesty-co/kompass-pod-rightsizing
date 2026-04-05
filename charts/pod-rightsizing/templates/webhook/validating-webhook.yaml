@@ -1,4 +1,3 @@
-{{- if .Values.enabled }}
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
@@ -12,38 +11,38 @@ webhooks:
     service:
       name: {{ include "kompass-webhook-svc.name" . }}
       namespace: {{ .Release.Namespace }}
-      path: /validate--v1-configmap
-  failurePolicy: Ignore
-  name: vconfigmap-v1.kb.io
+      path: /validate-rightsizing-kompass-zesty-co-v1alpha1-policy
+  failurePolicy: Fail
+  name: vpolicy-v1alpha1.kb.io
   rules:
   - apiGroups:
-    - ""
+    - rightsizing.kompass.zesty.co
     apiVersions:
-    - v1
+    - v1alpha1
     operations:
     - CREATE
     - UPDATE
+    - DELETE
     resources:
-    - configmaps
-  sideEffects: None
+    - policies
+  sideEffects: NoneOnDryRun
 - admissionReviewVersions:
   - v1
   clientConfig:
     service:
       name: {{ include "kompass-webhook-svc.name" . }}
       namespace: {{ .Release.Namespace }}
-      path: /validate-kompass-zesty-co-v1-jobpilotconfig
+      path: /validate-kompass-zesty-co-v1alpha1-virtualworkload
   failurePolicy: Fail
-  name: vjobpilotconfigs-v1.kb.io
+  name: vvirtualworkload-v1alpha1.kb.io
   rules:
   - apiGroups:
     - kompass.zesty.co
     apiVersions:
-    - v1
+    - v1alpha1
     operations:
     - CREATE
     - UPDATE
     resources:
-    - jobpilotconfigs
-  sideEffects: None
-{{- end }}
+    - virtualworkloads
+  sideEffects: NoneOnDryRun

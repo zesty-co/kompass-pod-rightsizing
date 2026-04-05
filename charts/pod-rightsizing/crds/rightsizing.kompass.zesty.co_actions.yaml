@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
-  name: actions.kompass.zesty.co
+  name: actions.rightsizing.kompass.zesty.co
 spec:
-  group: kompass.zesty.co
+  group: rightsizing.kompass.zesty.co
   names:
     kind: Action
     listKind: ActionList
@@ -27,6 +27,10 @@ spec:
       jsonPath: .status.phase
       name: Status
       type: string
+    - description: Policy
+      jsonPath: .spec.policy
+      name: Policy
+      type: string
     - description: Updated At
       jsonPath: .status.updateTimestamp
       name: Updated At
@@ -39,7 +43,7 @@ spec:
       jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
-    name: v1
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Action is the Schema for the actions API.
@@ -65,27 +69,33 @@ spec:
             description: ActionSpec defines the desired state of Action.
             properties:
               actionType:
-                description: ActionKind describes the reason for this action
+                description: Type of action being performed.
                 enum:
                 - Orchestration
                 - Rollback
                 type: string
               executionMethod:
-                description: ExecutionMethod describes the method used to execute
-                  this action
+                description: Method used to execute the action.
                 enum:
                 - InPlace
-                - Virtual
+                - PodMutation
                 - WorkloadPatch
                 type: string
+              policy:
+                description: Name of the policy that generated the action.
+                type: string
               priority:
+                description: Priority used to order or resolve action conflicts.
                 format: int64
                 type: integer
-              sourceAPC:
-                type: string
+              virtual:
+                description: Virtual action flag
+                type: boolean
               workload:
+                description: Workload targeted by the action.
                 properties:
                   containers:
+                    description: Container-level changes applied by the action.
                     items:
                       properties:
                         desiredCPU:
@@ -108,6 +118,7 @@ spec:
                       type: object
                     type: array
                   hpa:
+                    description: Horizontal Pod Autoscaler changes applied.
                     properties:
                       currentCpuUtilization:
                         format: int32
@@ -153,21 +164,30 @@ spec:
                       pdbConflict:
                         type: boolean
                       type:
-                        description: HpaKind describes the reason for this action
+                        description: HpaKind describes the HPA controller type.
                         enum:
                         - HPA
                         - Keda
                         type: string
                     type: object
                   kind:
+                    description: Kubernetes workload kind targeted.
                     type: string
                   name:
+                    description: Name of the targeted Kubernetes workload.
                     type: string
                 type: object
             type: object
           status:
             description: ActionStatus defines the observed state of Action.
             properties:
+              bindType:
+                description: BindType describes the method used to bind the action
+                enum:
+                - AppList
+                - Selector
+                - Annotation
+                type: string
               containersInitialValues:
                 items:
                   properties:
@@ -229,7 +249,7 @@ spec:
                   pdbConflict:
                     type: boolean
                   type:
-                    description: HpaKind describes the reason for this action
+                    description: HpaKind describes the HPA controller type.
                     enum:
                     - HPA
                     - Keda

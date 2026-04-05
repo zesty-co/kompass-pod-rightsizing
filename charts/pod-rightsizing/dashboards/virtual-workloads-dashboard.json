@@ -8,7 +8,7 @@
           "uid": "VictoriaMetrics"
         },
         "enable": true,
-        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"jobsgroup\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"memory\"}[$__interval])",
+        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"virtualworkload\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"memory\"}[$__interval])",
         "filter": {
           "exclude": false,
           "ids": [
@@ -32,7 +32,7 @@
           "uid": "VictoriaMetrics"
         },
         "enable": true,
-        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"jobsgroup\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"cpu\"}[$__interval])",
+        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"virtualworkload\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"cpu\"}[$__interval])",
         "filter": {
           "exclude": false,
           "ids": [
@@ -47,10 +47,10 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "P4169E866C3094E38"
+          "uid": "VictoriaMetrics"
         },
         "enable": true,
-        "expr": "changes(kompass_rs_recommendations{workload_name=\"$workload_name\", container=\"$container\", type=\"rollback\", mode=\"live\"}[1m])",
+        "expr": "changes(kompass_rs_recommendations{workload_name=\"$workload_name\", container=\"$container\", type=\"rollback\", mode=\"live\",workload_kind=\"virtualworkload\"}[1m])",
         "filter": {
           "exclude": false,
           "ids": [
@@ -67,7 +67,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 27,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -131,7 +131,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "recommendation"
+              "options": "recommendation for policy"
             },
             "properties": [
               {
@@ -204,31 +204,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "jobs avg request"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "light-red",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    10,
-                    10
-                  ],
-                  "fill": "dash"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "actual avg requests"
             },
             "properties": [
@@ -278,21 +253,21 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "last_over_time(kompass_rs_recommendations{mode=\"variants\",namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",resource_type=\"cpu\",strategy=~\"(?i)$strategy\",resource_source=\"desired\"}[1h])",
+          "expr": "last_over_time(kompass_rs_recommendations{mode=\"variants\",namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",resource_type=\"cpu\",rightsizing_policy=\"$policy\",resource_source=\"desired\"}[1h])",
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "recommendation for strategy",
+          "legendFormat": "recommendation for policy",
           "range": true,
           "refId": "Variants"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
           "expr": "(kompass_rs_recommendations{mode=\"live\",type=\"orchestration\",namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",resource_type=\"cpu\",resource_source=\"desired\"}[7d])",
@@ -306,10 +281,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "kompass_container_cpu_usage_max_rate{namespace=\"$namespace\",container=\"$container\",created_by_kind=\"jobsgroup\",created_by_name=\"$workload_name\"}",
+          "expr": "kompass_container_cpu_usage_max_rate{namespace=\"$namespace\",container=\"$container\",created_by_kind=\"virtualworkload\",created_by_name=\"$workload_name\"}",
           "hide": false,
           "instant": false,
           "legendFormat": "max usage",
@@ -451,28 +426,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "avg(kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})",
+          "expr": "WITH (\n  baseline = max(last_over_time(\n    kompass_rs_recommendations{\n      mode=\"active\",\n      namespace=\"$namespace\",\n      resource_id=\"$namespace;$workload_name;virtualworkload\",\n      resource_source=\"current\",\n      resource_type=\"cpu\",\n      container=\"$container\"\n    }[7d]\n  )),\n  pod_count = count(count by (pod) (\n    kompass_pod_info{\n      namespace=\"$namespace\",\n      resource_id=\"$namespace;$workload_name;virtualworkload\",\n      container=\"$container\",\n      status=\"running\"\n    }\n  ))\n)\nbaseline * clamp_max(pod_count, 1)",
           "hide": false,
           "instant": false,
           "legendFormat": "without rs",
           "range": true,
-          "refId": "Jobs Requests"
+          "refId": "Original Requests"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests{namespace=\"$namespace\",container=\"$container\",resource=\"cpu\"}\n* on (namespace,pod,container) group_left(workload_name) kompass_pod_info {namespace=\"$namespace\", workload_kind=\"jobsgroup\",workload_name=\"$workload_name\",container=\"$container\", status=\"running\"})",
+          "expr": "avg(kube_pod_container_resource_requests{namespace=\"$namespace\",container=\"$container\",resource=\"cpu\"}\n* on (namespace,pod,container) group_left(workload_name) kompass_pod_info {namespace=\"$namespace\", workload_kind=\"virtualworkload\",workload_name=\"$workload_name\",container=\"$container\", status=\"running\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "actual",
           "range": true,
-          "refId": "Jobs Pods Requests"
+          "refId": "Actual Requests"
         }
       ],
       "title": "CPU Requests (Average)",
@@ -534,29 +509,20 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "Cores"
         },
         "overrides": [
           {
-            "__systemRef": "hideSeriesFrom",
             "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "actual"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
+              "id": "byName",
+              "options": "current"
             },
             "properties": [
               {
-                "id": "custom.hideFrom",
+                "id": "color",
                 "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
+                  "fixedColor": "orange",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -588,41 +554,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "(clamp_min(sum(kube_pod_container_resource_requests{namespace=\"$namespace\",container=\"$container\",resource=\"cpu\"}\n* on (namespace,pod,container) group_left(workload_name) kompass_pod_info {namespace=\"$namespace\", workload_kind=\"jobsgroup\",workload_name=\"$workload_name\",container=\"$container\", status=\"running\"}\n-\non (namespace,pod,container) \nlast_over_time(kompass_rs_recommendations{namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",workload_kind=\"jobsgroup\",resource_source=\"desired\",mode=\"variants\",resource_type=\"cpu\", strategy=~\"(?i)$strategy\"}\n* on (namespace,container) group_left(pod) kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\",workload_name=\"$workload_name\",container=\"$container\",status=\"running\"})[1h])\n/\non (namespace,pod,container) \nsum(kube_pod_container_resource_requests{namespace=\"$namespace\",container=\"$container\",resource=\"cpu\"}\n* on (namespace,pod,container) group_left(workload_name) kompass_pod_info {namespace=\"$namespace\", workload_kind=\"jobsgroup\",workload_name=\"$workload_name\",container=\"$container\", status=\"running\"}),0))\nand on() vector($managed==0)",
-          "hide": true,
-          "instant": false,
-          "legendFormat": "potential",
-          "range": true,
-          "refId": "Potential"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "editorMode": "code",
-          "expr": "clamp_min(\nsum(\n((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})\n- \non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\n(kompass_rs_recommendations{mode=\"active\",resource_source=\"desired\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"}))\n)\n/\non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\nsum((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"cpu\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})),\n0)",
+          "expr": "WITH (\n  rid = \"$namespace;$workload_name;virtualworkload\",\n\n  replica_initial_minus_desired = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_initial_minus_desired{resource_id=rid, pod!=\"\", resource_type=\"cpu\"}\n  )\n)\n\nsum(replica_initial_minus_desired) by (resource_id)",
           "hide": false,
           "instant": false,
-          "legendFormat": "actual",
+          "legendFormat": "current",
           "range": true,
-          "refId": "Savings"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "editorMode": "code",
-          "expr": "  count(max(kompass_rs_recommendations{\n    mode=\"active\",\n    resource_source=\"current\",\n    container=\"$container\",\n    namespace=\"$namespace\",\n    resource_type=\"cpu\",\n    workload_kind=\"job\",\n    resource_id=\"$namespace;$workload_name;jobsgroup\"\n  })) ",
-          "hide": true,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "refId": "B"
         }
       ],
       "title": "CPU Savings",
@@ -660,8 +600,7 @@
             "renameByName": {
               "Metric": "Workload | Container",
               "Time": "",
-              "Value (sum)": "Sum",
-              "{container=\"stress-server-container\", namespace=\"default\", workload_name=\"job-group-config\"}": ""
+              "Value (sum)": "Sum"
             }
           }
         }
@@ -730,7 +669,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "recommendation for strategy"
+              "options": "recommendation for policy"
             },
             "properties": [
               {
@@ -827,24 +766,24 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "last_over_time(kompass_rs_recommendations{mode=\"variants\",namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",resource_type=\"memory\",strategy=~\"(?i)$strategy\",resource_source=\"desired\"}[1h])/$GiB",
+          "expr": "last_over_time(kompass_rs_recommendations{mode=\"variants\",namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",resource_type=\"memory\",rightsizing_policy=\"$policy\",resource_source=\"desired\"}[1h])/$GiB",
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "recommendation for strategy",
+          "legendFormat": "recommendation for policy",
           "range": true,
           "refId": "Variants"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "(kompass_rs_recommendations{mode=\"live\",type=\"orchestration\",namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",resource_type=\"memory\",resource_source=\"desired\"}[15s])/$GiB",
+          "expr": "(kompass_rs_recommendations{mode=\"live\",type=\"orchestration\",namespace=\"$namespace\",workload_name=\"$workload_name\",container=\"$container\",resource_type=\"memory\",resource_source=\"desired\"}[7d])/$GiB",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -855,10 +794,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "kompass_container_memory_usage_max{namespace=\"$namespace\",container=\"$container\",created_by_kind=\"jobsgroup\",created_by_name=\"$workload_name\"}/$GiB",
+          "expr": "kompass_container_memory_usage_max{namespace=\"$namespace\",container=\"$container\",created_by_kind=\"virtualworkload\",created_by_name=\"$workload_name\"}/$GiB",
           "hide": false,
           "instant": false,
           "legendFormat": "max usage",
@@ -1001,28 +940,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "avg(kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})/$GiB",
+          "expr": "WITH (\n  baseline_mem = max(\n    last_over_time(\n      kompass_rs_recommendations{\n        mode=\"active\",\n        namespace=\"$namespace\",\n        resource_id=\"$namespace;$workload_name;virtualworkload\",\n        resource_source=\"current\",\n        resource_type=\"memory\",\n        container=\"$container\"\n      }[7d]\n    )\n  ),\n\n  pod_count = count(\n    count by (pod) (\n      kompass_pod_info{\n        namespace=\"$namespace\",\n        resource_id=\"$namespace;$workload_name;virtualworkload\",\n        container=\"$container\",\n        status=\"running\"\n      }\n    )\n  )\n)\nbaseline_mem * clamp_max(pod_count, 1)/$GiB",
           "hide": false,
           "instant": false,
           "legendFormat": "without rs",
           "range": true,
-          "refId": "Jobs Requests"
+          "refId": "Original Requests"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests{namespace=\"$namespace\",container=\"$container\",resource=\"memory\"}\n* on (namespace,pod,container) group_left(workload_name) kompass_pod_info {namespace=\"$namespace\", workload_kind=\"jobsgroup\",workload_name=\"$workload_name\",container=\"$container\", status=\"running\"})/$GiB",
+          "expr": "avg(kube_pod_container_resource_requests{namespace=\"$namespace\",container=\"$container\",resource=\"memory\"}\n* on (namespace,pod,container) group_left(workload_name) kompass_pod_info {namespace=\"$namespace\", workload_kind=\"virtualworkload\",workload_name=\"$workload_name\",container=\"$container\", status=\"running\"})/$GiB",
           "hide": false,
           "instant": false,
           "legendFormat": "actual",
           "range": true,
-          "refId": "Jobs Pods Requests"
+          "refId": "Actual Requests"
         }
       ],
       "title": "Memory Requests (Average)",
@@ -1084,29 +1023,20 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "gbytes"
         },
         "overrides": [
           {
-            "__systemRef": "hideSeriesFrom",
             "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "actual"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
+              "id": "byName",
+              "options": "current"
             },
             "properties": [
               {
-                "id": "custom.hideFrom",
+                "id": "color",
                 "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
+                  "fixedColor": "orange",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -1138,15 +1068,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "clamp_min(\nsum(\n((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})\n- \non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\n(kompass_rs_recommendations{mode=\"active\",resource_source=\"desired\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"}))\n)\n/\non (mode,container,namespace,resource_type,workload_kind,workload_name,resource_id,strategy)\nsum((kompass_rs_recommendations{mode=\"active\",resource_source=\"current\",container=\"$container\",namespace=\"$namespace\",resource_type=\"memory\",workload_kind=\"job\",resource_id=\"$namespace;$workload_name;jobsgroup\"})),\n0)",
+          "expr": "WITH (\n  rid = \"$namespace;$workload_name;virtualworkload\",\n\n  replica_initial_minus_desired = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_initial_minus_desired{resource_id=rid, pod!=\"\", resource_type=\"memory\"}\n  )\n)\n\nsum(replica_initial_minus_desired) by (resource_id)",
           "hide": false,
           "instant": false,
-          "legendFormat": "actual",
+          "legendFormat": "current",
           "range": true,
-          "refId": "Savings"
+          "refId": "A"
         }
       ],
       "title": "Memory Savings",
@@ -1184,8 +1114,7 @@
             "renameByName": {
               "Metric": "Workload | Container",
               "Time": "",
-              "Value (sum)": "Sum",
-              "{container=\"stress-server-container\", namespace=\"default\", workload_name=\"job-group-config\"}": ""
+              "Value (sum)": "Sum"
             }
           }
         }
@@ -1280,7 +1209,7 @@
             "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "count (\n    kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\",workload_name=\"$workload_name\", container=\"$container\",status=\"running\"}\n)",
+          "expr": "count (\n    kompass_pod_info{namespace=\"$namespace\",workload_kind=\"virtualworkload\",workload_name=\"$workload_name\", container=\"$container\",status=\"running\"}\n)",
           "hide": false,
           "legendFormat": "count",
           "range": true,
@@ -1348,7 +1277,38 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Throttling"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "OOM"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
@@ -1375,20 +1335,20 @@
         {
           "editorMode": "code",
           "expr": "sum(increase(container_cpu_cfs_throttled_seconds_total{container=\"$container\", namespace=\"$namespace\"}[5m]) * on (container, pod, namespace) group_left (created_by_name, created_by_kind) max(max_over_time(kompass_pod_info{workload_name=\"$workload_name\", container=\"$container\", namespace=\"$namespace\"}[5m])) by (container, pod, created_by_name, created_by_kind, namespace)) by (container, namespace, created_by_name, created_by_kind) > 0",
-          "legendFormat": "{{created_by_name}} - Throttling",
+          "legendFormat": "Throttling",
           "range": true,
           "refId": "Throttling"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P4169E866C3094E38"
+            "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
           "expr": "sum((((delta( kube_pod_container_status_restarts_total{ container=\"$container\",namespace=\"$namespace\" }[1m]) > 0 ) * on(pod,container,namespace) (kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\",container=\"$container\",namespace=\"$namespace\"} > 0) ) or (kube_pod_container_status_terminated_reason{reason=\"OOMKilled\",container=\"$container\",namespace=\"$namespace\"} > 0) ) * on(namespace,container,pod) group_left(created_by_name,created_by_kind,namespace,resource_id) max( kompass_pod_info{ workload_name=\"$workload_name\", container=\"$container\", namespace=\"$namespace\"}) by(namespace,container,resource_id,created_by_name,created_by_kind,pod)) by(resource_id,container,created_by_name,created_by_kind,namespace)",
           "hide": false,
           "instant": false,
-          "legendFormat": "{{created_by_name}} - OOM",
+          "legendFormat": "OOM",
           "range": true,
           "refId": "OOM"
         }
@@ -1404,139 +1364,106 @@
   "templating": {
     "list": [
       {
-        "allowCustomValue": false,
-        "current": {
-          "text": "Conservative",
-          "value": "Conservative"
-        },
-        "label": "strategy",
-        "name": "strategy",
-        "options": [
-          {
-            "selected": true,
-            "text": "Conservative",
-            "value": "Conservative"
-          },
-          {
-            "selected": false,
-            "text": "Default",
-            "value": "Default"
-          }
-        ],
-        "query": "Conservative, Default",
-        "type": "custom"
-      },
-      {
-        "current": {
-          "text": "default",
-          "value": "default"
-        },
-        "definition": "query_result(kube_namespace_status_phase{phase=\"Active\"})",
+        "definition": "label_values(kube_namespace_status_phase{phase=\"Active\"},namespace)",
+        "label": "Namespace",
         "name": "namespace",
         "options": [],
         "query": {
-          "qryType": 3,
-          "query": "query_result(kube_namespace_status_phase{phase=\"Active\"})",
+          "qryType": 1,
+          "query": "label_values(kube_namespace_status_phase{phase=\"Active\"},namespace)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 2,
-        "regex": "/.*namespace=\"([^\"]*).*/",
+        "refresh": 1,
+        "regex": "",
         "type": "query"
       },
       {
-        "current": {
-          "text": "workers-job",
-          "value": "workers-job"
-        },
-        "definition": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\"}) by (workload_name))[24h])",
+        "allowCustomValue": false,
+        "definition": "label_values(kompass_pod_info,virtual_workload_type)",
         "description": "",
-        "label": "job group",
+        "includeAll": false,
+        "label": "Type",
+        "name": "virtual_workload_type",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(kompass_pod_info,virtual_workload_type)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "definition": "label_values(kompass_pod_info{namespace=\"$namespace\", virtual_workload_type=\"$virtual_workload_type\"},workload_name)",
+        "description": "",
+        "label": "Workload",
         "name": "workload_name",
         "options": [],
         "query": {
-          "qryType": 3,
-          "query": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\",workload_kind=\"jobsgroup\"}) by (workload_name))[24h])",
+          "qryType": 1,
+          "query": "label_values(kompass_pod_info{namespace=\"$namespace\", virtual_workload_type=\"$virtual_workload_type\"},workload_name)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 2,
-        "regex": "/.*workload_name=\"([^\"]*).*/",
+        "refresh": 1,
+        "regex": "",
         "type": "query"
       },
       {
-        "current": {
-          "text": "batch-worker-0",
-          "value": "batch-worker-0"
-        },
-        "definition": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\" ,workload_kind=\"jobsgroup\"}) by (container))[24h])",
+        "definition": "label_values(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\"},container)",
         "description": "",
-        "label": "container",
+        "label": "Container",
         "name": "container",
         "options": [],
         "query": {
-          "qryType": 3,
-          "query": "query_result(max_over_time(max(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\" ,workload_kind=\"jobsgroup\"}) by (container))[24h])",
+          "qryType": 1,
+          "query": "label_values(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\"},container)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 2,
-        "regex": "/.*container=\"([^\"]*).*/",
+        "refresh": 1,
+        "regex": "",
         "type": "query"
       },
       {
-        "current": {
-          "text": "0.045",
-          "value": "0.045"
-        },
-        "description": "",
-        "hide": 2,
-        "name": "CpuCost",
-        "query": "0.045",
-        "skipUrlSync": true,
-        "type": "constant"
+        "label": "Policy",
+        "name": "policy",
+        "options": [
+          {
+            "selected": false,
+            "text": "balanced",
+            "value": "balanced"
+          },
+          {
+            "selected": false,
+            "text": "cost-focused",
+            "value": "cost-focused"
+          },
+          {
+            "selected": false,
+            "text": "stability-focused",
+            "value": "stability-focused"
+          }
+        ],
+        "query": "balanced, cost-focused, stability-focused",
+        "type": "custom"
       },
       {
-        "current": {
-          "text": "0.011",
-          "value": "0.011"
-        },
-        "description": "",
-        "hide": 2,
-        "name": "MemCost",
-        "query": "0.011",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "(1024*1024*1024)",
-          "value": "(1024*1024*1024)"
-        },
         "hide": 2,
         "name": "GiB",
         "query": "(1024*1024*1024)",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "15s",
-          "value": "15s"
-        },
-        "hide": 2,
-        "name": "s_rate",
-        "query": "15s",
         "skipUrlSync": true,
         "type": "constant"
       }
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Pod-RightSizing Jobs",
-  "uid": "pod-rightsizing-jobs",
+  "title": "Pod-RightSizing Virtual Workloads Dashboard",
+  "uid": "pod-rightSizing-jobs",
   "version": 1,
   "weekStart": ""
 }
