@@ -320,13 +320,59 @@ When global runtimeClassName is defined, it overrides component values.
 {{- end -}}
 
 {{/*
-Enforce minimum resource value
+Normalize CPU quantity to millicores for comparison.
+*/}}
+{{- define "pod-rightsizing.cpuToMillicores" -}}
+{{- $value := toString . -}}
+{{- if hasSuffix "m" $value -}}
+{{- printf "%.0f" (float64 (trimSuffix "m" $value)) -}}
+{{- else -}}
+{{- printf "%.0f" (mulf (float64 $value) 1000) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Normalize memory quantity to MiB for comparison.
+*/}}
+{{- define "pod-rightsizing.memoryToMi" -}}
+{{- $value := toString . -}}
+{{- if hasSuffix "Ki" $value -}}
+{{- printf "%.6f" (divf (float64 (trimSuffix "Ki" $value)) 1024) -}}
+{{- else if hasSuffix "Mi" $value -}}
+{{- printf "%.6f" (float64 (trimSuffix "Mi" $value)) -}}
+{{- else if hasSuffix "Gi" $value -}}
+{{- printf "%.6f" (mulf (float64 (trimSuffix "Gi" $value)) 1024) -}}
+{{- else if hasSuffix "Ti" $value -}}
+{{- printf "%.6f" (mulf (float64 (trimSuffix "Ti" $value)) 1048576) -}}
+{{- else if hasSuffix "K" $value -}}
+{{- printf "%.6f" (divf (float64 (trimSuffix "K" $value)) 1048.576) -}}
+{{- else if hasSuffix "M" $value -}}
+{{- printf "%.6f" (divf (float64 (trimSuffix "M" $value)) 1.048576) -}}
+{{- else if hasSuffix "G" $value -}}
+{{- printf "%.6f" (mulf (float64 (trimSuffix "G" $value)) 953.67431640625) -}}
+{{- else if hasSuffix "T" $value -}}
+{{- printf "%.6f" (mulf (float64 (trimSuffix "T" $value)) 953674.31640625) -}}
+{{- else -}}
+{{- printf "%.6f" (divf (float64 $value) 1048576) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Enforce minimum resource value.
 */}}
 {{- define "pod-rightsizing.enforceMin" -}}
-{{- $user := .user -}}
-{{- $min := .min -}}
-{{- $userVal := int (regexReplaceAll "[a-zA-Z]+$" $user "") -}}
-{{- $minVal := int (regexReplaceAll "[a-zA-Z]+$" $min "") -}}
+{{- $user := toString .user -}}
+{{- $min := toString .min -}}
+{{- $kind := toString .kind -}}
+{{- $userVal := 0.0 -}}
+{{- $minVal := 0.0 -}}
+{{- if eq $kind "cpu" -}}
+{{- $userVal = float64 (include "pod-rightsizing.cpuToMillicores" $user) -}}
+{{- $minVal = float64 (include "pod-rightsizing.cpuToMillicores" $min) -}}
+{{- else if eq $kind "memory" -}}
+{{- $userVal = float64 (include "pod-rightsizing.memoryToMi" $user) -}}
+{{- $minVal = float64 (include "pod-rightsizing.memoryToMi" $min) -}}
+{{- end -}}
 {{- if lt $userVal $minVal }}{{ $min }}{{ else }}{{ $user }}{{ end -}}
 {{- end -}}
 
@@ -339,8 +385,8 @@ Metrics Exporter resources with minimum values enforced
 {{- $userMemory := $resources.requests.memory | default "128Mi" -}}
 resources:
   requests:
-    cpu: {{ include "pod-rightsizing.enforceMin" (dict "user" $userCpu "min" "100m") }}
-    memory: {{ include "pod-rightsizing.enforceMin" (dict "user" $userMemory "min" "128Mi") }}
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "kind" "cpu" "user" $userCpu "min" "100m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "kind" "memory" "user" $userMemory "min" "128Mi") }}
 {{- with $resources.limits }}
   limits:
     {{- toYaml . | nindent 4 }}
@@ -356,8 +402,8 @@ Recommendations Maker resources with minimum values enforced
 {{- $userMemory := $resources.requests.memory | default "128Mi" -}}
 resources:
   requests:
-    cpu: {{ include "pod-rightsizing.enforceMin" (dict "user" $userCpu "min" "200m") }}
-    memory: {{ include "pod-rightsizing.enforceMin" (dict "user" $userMemory "min" "128Mi") }}
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "kind" "cpu" "user" $userCpu "min" "200m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "kind" "memory" "user" $userMemory "min" "128Mi") }}
 {{- with $resources.limits }}
   limits:
     {{- toYaml . | nindent 4 }}
@@ -373,8 +419,8 @@ Action Taker resources with minimum values enforced
 {{- $userMemory := $resources.requests.memory | default "128Mi" -}}
 resources:
   requests:
-    cpu: {{ include "pod-rightsizing.enforceMin" (dict "user" $userCpu "min" "100m") }}
-    memory: {{ include "pod-rightsizing.enforceMin" (dict "user" $userMemory "min" "128Mi") }}
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "kind" "cpu" "user" $userCpu "min" "100m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "kind" "memory" "user" $userMemory "min" "128Mi") }}
 {{- with $resources.limits }}
   limits:
     {{- toYaml . | nindent 4 }}
