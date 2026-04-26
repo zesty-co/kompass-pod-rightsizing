@@ -296,6 +296,38 @@ spec:
                 format: int64
                 minimum: 0
                 type: integer
+              startupBoost:
+                properties:
+                  cpu:
+                    description: CPU Boost
+                    properties:
+                      multiplier:
+                        description: Multiplier for boost.
+                        minimum: 1
+                        type: number
+                    required:
+                    - multiplier
+                    type: object
+                  duration:
+                    description: Duration of the startup boost.
+                    format: duration
+                    type: string
+                  memory:
+                    description: Memory Boost
+                    properties:
+                      multiplier:
+                        description: Multiplier for boost.
+                        minimum: 1
+                        type: number
+                    required:
+                    - multiplier
+                    type: object
+                required:
+                - duration
+                type: object
+                x-kubernetes-validations:
+                - message: at least one of cpu or memory must be specified
+                  rule: has(self.cpu) || has(self.memory)
             required:
             - cooldownPeriod
             - cpu
@@ -306,6 +338,9 @@ spec:
             - preferInPlace
             - priority
             type: object
+            x-kubernetes-validations:
+            - message: startupBoost requires preferInPlace to be true
+              rule: '!has(self.startupBoost) || self.preferInPlace'
           status:
             description: PolicyStatus defines the observed state of Policy
             properties:
