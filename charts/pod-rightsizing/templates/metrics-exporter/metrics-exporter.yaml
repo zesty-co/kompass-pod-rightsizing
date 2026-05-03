@@ -77,6 +77,8 @@ spec:
               env:
                 - name: ACCOUNT_ID
                   value: {{ .Values.accountId | quote }}
+                - name: VM_URL
+                  value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
                 {{- if and .Values.global.cxLogging .Values.global.cxLogging.enabled }}
                 - name: CX_API_KEY
                   value: {{ .Values.global.cxLogging.apiKey }}
