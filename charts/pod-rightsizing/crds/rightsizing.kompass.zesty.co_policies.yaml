@@ -210,7 +210,7 @@ spec:
                 description: Human-readable description of the policy.
                 type: string
               evictPodsInDeferredState:
-                default: false
+                default: true
                 description: Whether to evict pods in deferred state when actions
                   are created. false by default
                 type: boolean
