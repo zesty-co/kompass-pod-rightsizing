@@ -34,6 +34,10 @@ actionTaker:
   webhooks:
     application:
       enabled: true
+  webhookService:
+    selector:
+      control-plane: controller-manager
+      app.kubernetes.io/name: pod-rightsizing
   priorityClassName: ""
   runtimeClassName: ""
   imagePullSecrets: []
