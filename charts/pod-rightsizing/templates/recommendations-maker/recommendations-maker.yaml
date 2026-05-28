@@ -2,6 +2,7 @@
 {{- $recommendationsMakerSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" .Values.recommendationsMaker.securityContext) | fromYaml }}
 {{- $recommendationsMakerPodLabels := include "pod-rightsizing.podTemplateLabels" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
 {{- $recommendationsMakerPodAnnotations := include "pod-rightsizing.podTemplateAnnotations" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
+{{- $recommendationsMakerPodAnnotations = mergeOverwrite (deepCopy $recommendationsMakerPodAnnotations) (dict "checksum/pilot-config" (include (print $.Template.BasePath "/config/pilotConfigmap.yaml") . | sha256sum)) }}
 {{- $recommendationsMakerAffinity := include "pod-rightsizing.affinity" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
 {{- $recommendationsMakerImagePullSecrets := include "pod-rightsizing.imagePullSecrets" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYamlArray }}
 {{- $recommendationsMakerTopologySpreadConstraints := include "pod-rightsizing.topologySpreadConstraints" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYamlArray }}
@@ -25,10 +26,8 @@ spec:
       app: {{ include "recommendations-maker.name" . }}
   template:
     metadata:
-      {{- with $recommendationsMakerPodAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- toYaml $recommendationsMakerPodAnnotations | nindent 8 }}
       labels:
         app: {{ include "recommendations-maker.name" . }}
         app.kubernetes.io/name: pod-rightsizing
