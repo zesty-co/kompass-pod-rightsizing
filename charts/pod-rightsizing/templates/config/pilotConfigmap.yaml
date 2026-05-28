@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
     recommendationsInterval: {{ (.Values.config).recommendationsInterval | default "30m" | quote }}
+    probeEventsInterval: {{ (.Values.config).probeEventsInterval | default "1m" | quote }}
     cooldownBetweenActions: {{ (.Values.config).cooldownBetweenActions | default "2m" | quote }}
     hpaLookbackPeriod: {{ (.Values.config).hpaLookbackPeriod | default "3m" | quote }}
     bypassHpaVpaConflictValidator: {{ (.Values.config).bypassHpaVpaConflictValidator | default "true" | quote }}

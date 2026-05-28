@@ -330,11 +330,9 @@ spec:
                   rule: has(self.cpu) || has(self.memory)
             required:
             - cooldownPeriod
-            - cpu
             - dataCoveragePercentage
             - description
             - lookbackPeriod
-            - memory
             - preferInPlace
             - priority
             type: object
