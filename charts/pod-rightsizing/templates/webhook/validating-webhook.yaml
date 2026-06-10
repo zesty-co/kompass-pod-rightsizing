@@ -46,3 +46,22 @@ webhooks:
     resources:
     - virtualworkloads
   sideEffects: NoneOnDryRun
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-rightsizing-kompass-zesty-co-v1alpha1-initialvalues
+  failurePolicy: Fail
+  name: vinitialvalues-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - rightsizing.kompass.zesty.co
+    apiVersions:
+    - v1alpha1
+    operations:
+    - DELETE
+    resources:
+    - initialvalues
+  sideEffects: NoneOnDryRun

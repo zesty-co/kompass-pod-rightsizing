@@ -92,7 +92,11 @@ spec:
               value: {{ .Values.secret }}
             {{- if and .Values.global.cxLogging .Values.global.cxLogging.enabled }}
             - name: CX_API_KEY
-              value: {{ .Values.global.cxLogging.apiKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ dig "apiKeySecret" "name" "kompass-cx-logging" .Values.global.cxLogging | quote }}
+                  key: {{ dig "apiKeySecret" "key" "CX_API_KEY" .Values.global.cxLogging | quote }}
+                  optional: true
             - name: CX_CLUSTER_NAME
               value: {{ .Values.global.cxLogging.clusterName }}
             - name: CORALOGIX_METRICS_URL
@@ -101,7 +105,11 @@ spec:
               value: {{ .Values.global.cxLogging.ingressUrl }}
             {{- else if and .Values.cxLogging .Values.cxLogging.enabled }}
             - name: CX_API_KEY
-              value: {{ .Values.cxLogging.apiKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ dig "apiKeySecret" "name" "kompass-cx-logging" .Values.cxLogging | quote }}
+                  key: {{ dig "apiKeySecret" "key" "CX_API_KEY" .Values.cxLogging | quote }}
+                  optional: true
             - name: CX_CLUSTER_NAME
               value: {{ .Values.cxLogging.clusterName }}
             - name: CORALOGIX_METRICS_URL
