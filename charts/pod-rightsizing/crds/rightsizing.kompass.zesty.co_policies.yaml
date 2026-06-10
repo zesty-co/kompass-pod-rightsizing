@@ -342,24 +342,6 @@ spec:
           status:
             description: PolicyStatus defines the observed state of Policy
             properties:
-              boundWorkloads:
-                description: Workloads bound to this policy.
-                items:
-                  description: AppListItem represents an explicit workload reference
-                    bound to a policy.
-                  properties:
-                    kind:
-                      type: string
-                    name:
-                      type: string
-                    namespace:
-                      type: string
-                  required:
-                  - kind
-                  - name
-                  - namespace
-                  type: object
-                type: array
               conditions:
                 description: Conditions represent the latest available observations
                   of policy validity and state.

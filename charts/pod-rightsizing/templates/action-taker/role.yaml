@@ -163,6 +163,7 @@ rules:
   - rightsizing.kompass.zesty.co
   resources:
   - actions
+  - initialvalues
   - policies
   verbs:
   - create
