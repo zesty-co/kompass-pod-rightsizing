@@ -18,6 +18,7 @@ cxLogging:
 global:
   imagePullSecret:
     name: ""
+    dockerconfigjson: ""
   imagePullSecrets: []
   podLabels: {}
   podAnnotations: {}
@@ -72,7 +73,7 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "v0.6.2"
+    tag: "v0.6.3"
   resources:
     requests:
       cpu: 100m
@@ -84,6 +85,10 @@ config:
     - "zesty-system"
   probeEventsInterval: 1m
   builtinPolicies:
+    - balanced
+    - cost-focused
+    - stability-focused
+  horizontalScalingBuiltinPolicies:
     - balanced
     - cost-focused
     - stability-focused
@@ -121,7 +126,7 @@ recommendationsMaker:
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "v0.6.2"
+    tag: "v0.6.3"
     args:
   port: 8088
   resources:
@@ -157,13 +162,15 @@ metricsExporter:
   #     type: RuntimeDefault
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "v0.6.2"
+    tag: "v0.6.3"
     args:
   resources:
     requests:
       cpu: 100m
       memory: 128Mi
 podRightsizingConfig:
+  name: ""
+rightsizingParamsConfig:
   name: ""
 hooks:
   image:

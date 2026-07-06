@@ -8,9 +8,7 @@ metadata:
 data:
   virtual-workloads-dashboard.json: |-
 {{ .Files.Get "dashboards/virtual-workloads-dashboard.json" | indent 4 }}
-  rightsizing-dashboard.json: |-
-{{ .Files.Get "dashboards/rightsizing-dashboard.json" | indent 4 }}
-  horizontal-scaling-dashboard.json: |-
-{{ .Files.Get "dashboards/horizontal-scaling-dashboard.json" | indent 4 }}
+  mda-dashboard.json: |-
+{{ .Files.Get "dashboards/mda-dashboard.json" | indent 4 }}
   workloads-table.json: |-
 {{ .Files.Get "dashboards/workloads-table.json" | indent 4 }}

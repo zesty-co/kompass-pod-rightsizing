@@ -80,6 +80,8 @@ spec:
               value: "{{ .Values.recommendationsMaker.leaderElection.enabled }}"
             - name: VM_URL
               value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
+            - name: APP_CONFIG_MOUNTED_PATH
+              value: /etc/kompass-rightsizing/config
             - name: SAVE_QUERIES_TO_FILES
               value: "false"
             - name: CONTAINER_NAME
@@ -130,6 +132,9 @@ spec:
           volumeMounts:
             - mountPath: /recommendations-data
               name: recommendations-storage
+            - mountPath: /etc/kompass-rightsizing/config
+              name: rightsizing-config
+              readOnly: true
           {{- with $recommendationsMakerSecurityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
@@ -142,6 +147,9 @@ spec:
       volumes:
         - name: recommendations-storage
           emptyDir: {}
+        - name: rightsizing-config
+          configMap:
+            name: {{ include "kompass-pod-rightsizing-config.name" . }}
       {{- with $recommendationsMakerImagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

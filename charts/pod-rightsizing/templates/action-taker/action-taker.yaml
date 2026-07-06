@@ -120,6 +120,9 @@ spec:
             - mountPath: /tmp/k8s-webhook-server/serving-certs
               name: webhook-certs
               readOnly: true
+            - mountPath: /etc/kompass-rightsizing/config
+              name: rightsizing-config
+              readOnly: true
           command:
             - /action-taker
           env:
@@ -143,6 +146,8 @@ spec:
               value: {{ .Values.actionTaker.name }}
             - name: VM_URL
               value: {{ include "pod-rightsizing.victoriaMetrics.url" . }}
+            - name: APP_CONFIG_MOUNTED_PATH
+              value: /etc/kompass-rightsizing/config
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -208,6 +213,9 @@ spec:
         - name: webhook-certs
           secret:
             secretName: kompass-pod-rightsizing-webhook-cert
+        - name: rightsizing-config
+          configMap:
+            name: {{ include "kompass-pod-rightsizing-config.name" . }}
       {{- with $actionTakerPodSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}

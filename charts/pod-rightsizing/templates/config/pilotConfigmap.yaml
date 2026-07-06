@@ -6,7 +6,7 @@ metadata:
 data:
     recommendationsInterval: {{ (.Values.config).recommendationsInterval | default "30m" | quote }}
     probeEventsInterval: {{ (.Values.config).probeEventsInterval | default "1m" | quote }}
-    cooldownBetweenActions: {{ (.Values.config).cooldownBetweenActions | default "2m" | quote }}
+    cooldownBetweenActions: {{ (.Values.config).cooldownBetweenActions | default "0m" | quote }}
     hpaLookbackPeriod: {{ (.Values.config).hpaLookbackPeriod | default "3m" | quote }}
     bypassHpaVpaConflictValidator: {{ (.Values.config).bypassHpaVpaConflictValidator | default "true" | quote }}
 
@@ -22,6 +22,8 @@ data:
     
     builtinPolicies: |
 {{ toYaml .Values.config.builtinPolicies | indent 6 }}
+    horizontalScalingBuiltinPolicies: |
+{{ toYaml .Values.config.horizontalScalingBuiltinPolicies | indent 6 }}
 
     throttlingRollbackTimeRange: |
 {{- if and .Values.config (.Values.config).throttlingRollbackTimeRange }}

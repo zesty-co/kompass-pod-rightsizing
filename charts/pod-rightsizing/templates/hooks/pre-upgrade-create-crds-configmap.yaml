@@ -14,5 +14,7 @@ data:
 {{ .Files.Get "crds/rightsizing.kompass.zesty.co_actions.yaml" | indent 4 }}
   rightsizing.kompass.zesty.co_policies.yaml: |
 {{ .Files.Get "crds/rightsizing.kompass.zesty.co_policies.yaml" | indent 4 }}
+  horizontalscaling.kompass.zesty.co_policies.yaml: |
+{{ .Files.Get "crds/horizontalscaling.kompass.zesty.co_policies.yaml" | indent 4 }}
   rightsizing.kompass.zesty.co_initialvalues.yaml: |
 {{ .Files.Get "crds/rightsizing.kompass.zesty.co_initialvalues.yaml" | indent 4 }}

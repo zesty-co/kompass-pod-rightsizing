@@ -8,7 +8,7 @@
           "uid": "VictoriaMetrics"
         },
         "enable": true,
-        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"virtualworkload\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"memory\"}[$__interval])",
+        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"VirtualWorkload\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"memory\"}[$__interval])",
         "filter": {
           "exclude": false,
           "ids": [
@@ -32,7 +32,7 @@
           "uid": "VictoriaMetrics"
         },
         "enable": true,
-        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"virtualworkload\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"cpu\"}[$__interval])",
+        "expr": "changes(kompass_rs_recommendations{namespace=\"$namespace\",workload_kind=\"VirtualWorkload\",workload_name=\"$workload_name\",mode=\"live\",type=\"orchestration\",container=\"$container\",resource_source=\"desired\",resource_type=\"cpu\"}[$__interval])",
         "filter": {
           "exclude": false,
           "ids": [
@@ -50,7 +50,7 @@
           "uid": "VictoriaMetrics"
         },
         "enable": true,
-        "expr": "changes(kompass_rs_recommendations{workload_name=\"$workload_name\", container=\"$container\", type=\"rollback\", mode=\"live\",workload_kind=\"virtualworkload\"}[1m])",
+        "expr": "changes(kompass_rs_recommendations{workload_name=\"$workload_name\", container=\"$container\", type=\"rollback\", mode=\"live\",workload_kind=\"VirtualWorkload\"}[1m])",
         "filter": {
           "exclude": false,
           "ids": [
@@ -67,7 +67,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 883,
   "links": [],
   "panels": [
     {
@@ -185,7 +185,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "max usage"
+              "options": "percentile usage"
             },
             "properties": [
               {
@@ -281,15 +281,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "VictoriaMetrics"
+            "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "kompass_container_cpu_usage_max_rate{namespace=\"$namespace\",container=\"$container\",created_by_kind=\"virtualworkload\",created_by_name=\"$workload_name\"}",
+          "expr": "sum(quantile by (container, resource_id, created_by_name, created_by_kind, namespace) ($cpu_usage_percentile/100, (rate(container_cpu_usage_seconds_total{container=~\"$container\",namespace=\"$namespace\"}[1m]) * on (namespace,pod,container) group_left (resource_id,created_by_name,created_by_kind) max by (namespace,pod,container,resource_id,created_by_name,created_by_kind) (kompass_pod_info{container=~\"$container\", namespace=\"$namespace\", created_by_name=\"$workload_name\",created_by_kind=\"virtualworkload\"}))))",
           "hide": false,
           "instant": false,
-          "legendFormat": "max usage",
+          "legendFormat": "percentile usage",
           "range": true,
-          "refId": "Max Usage"
+          "refId": "Percentile Usage"
         }
       ],
       "title": "CPU Recommendations",
@@ -557,7 +557,7 @@
             "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "WITH (\n  rid = \"$namespace;$workload_name;virtualworkload\",\n\n  replica_initial_minus_desired = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_initial_minus_desired{resource_id=rid, pod!=\"\", resource_type=\"cpu\"}\n  )\n)\n\nsum(replica_initial_minus_desired) by (resource_id)",
+          "expr": "WITH (\n  rid = \"$namespace;$workload_name;virtualworkload\",\n\n  replica_initial = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_initial_requests{resource_id=rid, pod!=\"\", resource_type=\"cpu\"}\n  ),\n\n  replica_desired = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_actual_requests{resource_id=rid, pod!=\"\", resource_type=\"cpu\"}\n  )\n)\n\nsum(replica_initial - replica_desired) by (resource_id)",
           "hide": false,
           "instant": false,
           "legendFormat": "current",
@@ -723,7 +723,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "max usage"
+              "options": "percentile usage"
             },
             "properties": [
               {
@@ -794,15 +794,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "VictoriaMetrics"
+            "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "kompass_container_memory_usage_max{namespace=\"$namespace\",container=\"$container\",created_by_kind=\"virtualworkload\",created_by_name=\"$workload_name\"}/$GiB",
+          "expr": "sum(quantile by (container, resource_id, created_by_name, created_by_kind, namespace) ($memory_usage_percentile/100, (container_memory_working_set_bytes{container=~\"$container\",namespace=\"$namespace\"} * on (namespace,pod,container) group_left (resource_id,created_by_name,created_by_kind) max by (namespace,pod,container,resource_id,created_by_name,created_by_kind) (kompass_pod_info{container=~\"$container\", namespace=\"$namespace\", created_by_name=\"$workload_name\",created_by_kind=\"virtualworkload\"})))/$GiB)",
           "hide": false,
           "instant": false,
-          "legendFormat": "max usage",
+          "legendFormat": "percentile usage",
           "range": true,
-          "refId": "Max Usage"
+          "refId": "Percentile Usage"
         }
       ],
       "title": "Memory Recommendations",
@@ -1071,7 +1071,7 @@
             "uid": "VictoriaMetrics"
           },
           "editorMode": "code",
-          "expr": "WITH (\n  rid = \"$namespace;$workload_name;virtualworkload\",\n\n  replica_initial_minus_desired = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_initial_minus_desired{resource_id=rid, pod!=\"\", resource_type=\"memory\"}\n  )\n)\n\nsum(replica_initial_minus_desired) by (resource_id)",
+          "expr": "WITH (\n  rid = \"$namespace;$workload_name;virtualworkload\",\n\n  replica_initial = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_initial_requests{resource_id=rid, pod!=\"\", resource_type=\"memory\"}\n  ),\n\n  replica_desired = max by (pod, resource_id, resource_type) (\n    kompass_pod_info{status=\"running\", resource_id=rid}\n    * on(resource_id, pod) group_left(resource_type)\n      kompass_rs_actual_requests{resource_id=rid, pod!=\"\", resource_type=\"memory\"}\n  )\n)\n\nsum(replica_initial - replica_desired) by (resource_id)",
           "hide": false,
           "instant": false,
           "legendFormat": "current",
@@ -1364,6 +1364,10 @@
   "templating": {
     "list": [
       {
+        "current": {
+          "text": "default",
+          "value": "default"
+        },
         "definition": "label_values(kube_namespace_status_phase{phase=\"Active\"},namespace)",
         "label": "Namespace",
         "name": "namespace",
@@ -1379,6 +1383,10 @@
       },
       {
         "allowCustomValue": false,
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "definition": "label_values(kompass_pod_info{namespace=\"$namespace\", workload_kind=\"virtualworkload\"},virtual_workload_type)",
         "description": "",
         "hide": 2,
@@ -1396,6 +1404,10 @@
         "type": "query"
       },
       {
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "definition": "label_values(kompass_container_cpu_usage_max_rate{namespace=\"$namespace\", created_by_kind=\"virtualworkload\"},created_by_name)",
         "description": "",
         "label": "Workload",
@@ -1411,6 +1423,10 @@
         "type": "query"
       },
       {
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "definition": "label_values(kompass_container_cpu_usage_max_rate{namespace=\"$namespace\", created_by_name=\"$workload_name\", created_by_kind=\"virtualworkload\"},container)",
         "description": "",
         "label": "Container",
@@ -1426,11 +1442,15 @@
         "type": "query"
       },
       {
+        "current": {
+          "text": "balanced",
+          "value": "balanced"
+        },
         "label": "Policy",
         "name": "policy",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "balanced",
             "value": "balanced"
           },
@@ -1449,11 +1469,49 @@
         "type": "custom"
       },
       {
+        "current": {
+          "text": "(1024*1024*1024)",
+          "value": "(1024*1024*1024)"
+        },
         "hide": 2,
         "name": "GiB",
         "query": "(1024*1024*1024)",
         "skipUrlSync": true,
         "type": "constant"
+      },
+      {
+        "current": {
+          "text": "100",
+          "value": "100"
+        },
+        "label": "CPU Usage Percentile",
+        "name": "cpu_usage_percentile",
+        "options": [
+          {
+            "selected": true,
+            "text": "100",
+            "value": "100"
+          }
+        ],
+        "query": "100",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "100",
+          "value": "100"
+        },
+        "label": "Memory Usage Percentile",
+        "name": "memory_usage_percentile",
+        "options": [
+          {
+            "selected": true,
+            "text": "100",
+            "value": "100"
+          }
+        ],
+        "query": "100",
+        "type": "textbox"
       }
     ]
   },
@@ -1463,8 +1521,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Pod-RightSizing Virtual Workloads Dashboard",
-  "uid": "pod-rightSizing-jobs",
-  "version": 1,
+  "title": "Pod-RightSizing Virtual Workloads Dashboard - NEW",
+  "uid": "pod-rightSizing-jobs-new",
+  "version": 2,
   "weekStart": ""
 }

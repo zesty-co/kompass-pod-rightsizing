@@ -1,3 +1,20 @@
+{{- $hookImagePullSecretName := include "pod-rightsizing.hookImagePullSecretName" . -}}
+{{- $hookImagePullSecrets := include "pod-rightsizing.hookImagePullSecrets" . | fromYamlArray -}}
+{{- if $hookImagePullSecretName }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $hookImagePullSecretName | quote }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade,post-upgrade
+    helm.sh/hook-weight: "-60"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ .Values.global.imagePullSecret.dockerconfigjson | quote }}
+{{- end }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -62,6 +79,10 @@ spec:
     spec:
       serviceAccountName: {{ .Release.Name }}-pre-upgrade-apply-crds
       restartPolicy: Never
+      {{- with $hookImagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 
       {{- if .Values.global.nodeSelector }}
       nodeSelector:
@@ -160,6 +181,7 @@ spec:
               kubectl wait --for=condition=Established --timeout=120s crd/virtualworkloads.kompass.zesty.co
               kubectl wait --for=condition=Established --timeout=120s crd/actions.rightsizing.kompass.zesty.co
               kubectl wait --for=condition=Established --timeout=120s crd/policies.rightsizing.kompass.zesty.co
+              kubectl wait --for=condition=Established --timeout=120s crd/policies.horizontalscaling.kompass.zesty.co
               kubectl wait --for=condition=Established --timeout=120s crd/initialvalues.rightsizing.kompass.zesty.co
 
               echo "[INFO] All CRDs are Established."

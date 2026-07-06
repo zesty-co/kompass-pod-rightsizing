@@ -1,5 +1,6 @@
 {{- $hooksPodSecurityContext := include "pod-rightsizing.securityContext.pod" (dict "root" . "componentSecurityContext" dict) | fromYaml }}
 {{- $hooksSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" dict) | fromYaml }}
+{{- $hookImagePullSecrets := include "pod-rightsizing.hookImagePullSecrets" . | fromYamlArray -}}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -75,6 +76,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       serviceAccountName: action-migration-post-upgrade
+      {{- with $hookImagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.global.nodeSelector }}
       nodeSelector:
       {{- toYaml .Values.global.nodeSelector | nindent 8 }}

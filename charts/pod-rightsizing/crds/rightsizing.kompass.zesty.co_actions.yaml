@@ -27,9 +27,13 @@ spec:
       jsonPath: .status.phase
       name: Status
       type: string
-    - description: Policy
-      jsonPath: .spec.policy
-      name: Policy
+    - description: Rightsizing Policy
+      jsonPath: .status.activations.rightsizing.policyName
+      name: Rightsizing Policy
+      type: string
+    - description: Horizontal Scaling Policy
+      jsonPath: .status.activations.horizontalScaling.policyName
+      name: Horizontal Policy
       type: string
     - description: Updated At
       jsonPath: .status.updateTimestamp
@@ -80,9 +84,6 @@ spec:
                 - InPlace
                 - PodMutation
                 - WorkloadPatch
-                type: string
-              policy:
-                description: Name of the policy that generated the action.
                 type: string
               priority:
                 description: Priority used to order or resolve action conflicts.
@@ -181,13 +182,41 @@ spec:
           status:
             description: ActionStatus defines the observed state of Action.
             properties:
-              bindType:
-                description: BindType describes the method used to bind the action
-                enum:
-                - AppList
-                - Selector
-                - Annotation
-                type: string
+              activations:
+                properties:
+                  horizontalScaling:
+                    properties:
+                      activeSince:
+                        format: date-time
+                        type: string
+                      bindType:
+                        description: BindType describes the method used to bind the
+                          action
+                        enum:
+                        - AppList
+                        - Selector
+                        - Annotation
+                        type: string
+                      policyName:
+                        type: string
+                    type: object
+                  rightsizing:
+                    properties:
+                      activeSince:
+                        format: date-time
+                        type: string
+                      bindType:
+                        description: BindType describes the method used to bind the
+                          action
+                        enum:
+                        - AppList
+                        - Selector
+                        - Annotation
+                        type: string
+                      policyName:
+                        type: string
+                    type: object
+                type: object
               executionTimestamp:
                 format: date-time
                 type: string

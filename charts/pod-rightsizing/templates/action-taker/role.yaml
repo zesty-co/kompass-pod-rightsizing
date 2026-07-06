@@ -111,6 +111,34 @@ rules:
   - update
   - watch
 - apiGroups:
+  - horizontalscaling.kompass.zesty.co
+  resources:
+  - policies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - horizontalscaling.kompass.zesty.co
+  resources:
+  - policies/finalizers
+  verbs:
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - horizontalscaling.kompass.zesty.co
+  resources:
+  - policies/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - coordination.k8s.io
   resources:
   - leases
