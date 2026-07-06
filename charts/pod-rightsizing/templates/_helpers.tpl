@@ -254,9 +254,13 @@ When global secrets are defined, they are used and override component values.
 {{- $componentValues := default (dict) .componentValues -}}
 {{- $componentSecrets := default (list) $componentValues.imagePullSecrets -}}
 {{- $legacySecrets := default (list) $root.Values.imagePullSecrets -}}
+{{- $globalImagePullSecretName := $root.Values.global.imagePullSecret.name -}}
+{{- if hasKey . "globalImagePullSecretName" -}}
+{{- $globalImagePullSecretName = .globalImagePullSecretName -}}
+{{- end -}}
 {{- $globalSecrets := list -}}
-{{- if $root.Values.global.imagePullSecret.name -}}
-{{- $globalSecrets = append $globalSecrets (dict "name" $root.Values.global.imagePullSecret.name) -}}
+{{- if $globalImagePullSecretName -}}
+{{- $globalSecrets = append $globalSecrets (dict "name" $globalImagePullSecretName) -}}
 {{- end -}}
 {{- range (default (list) $root.Values.global.imagePullSecrets) -}}
 {{- $globalSecrets = append $globalSecrets . -}}
@@ -268,6 +272,27 @@ When global secrets are defined, they are used and override component values.
 {{- else if gt (len $legacySecrets) 0 -}}
 {{- toYaml $legacySecrets -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Build hook-scoped image pull secret name when the chart creates the secret before hook Jobs run.
+*/}}
+{{- define "pod-rightsizing.hookImagePullSecretName" -}}
+{{- if and .Values.global.imagePullSecret.name .Values.global.imagePullSecret.dockerconfigjson -}}
+{{- printf "%s-rightsizing-hook" .Values.global.imagePullSecret.name | trunc 253 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Build effective imagePullSecrets for hook Jobs.
+*/}}
+{{- define "pod-rightsizing.hookImagePullSecrets" -}}
+{{- $hookImagePullSecretName := include "pod-rightsizing.hookImagePullSecretName" . -}}
+{{- $args := dict "root" . "componentValues" (dict) -}}
+{{- if $hookImagePullSecretName -}}
+{{- $args = mergeOverwrite $args (dict "globalImagePullSecretName" $hookImagePullSecretName) -}}
+{{- end -}}
+{{- include "pod-rightsizing.imagePullSecrets" $args -}}
 {{- end -}}
 
 {{/*
