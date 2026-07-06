@@ -1379,16 +1379,15 @@
       },
       {
         "allowCustomValue": false,
-        "definition": "label_values(kompass_pod_info{namespace=\"$namespace\", workload_kind=\"virtualworkload\"},virtual_workload_type)",
+        "definition": "label_values(kompass_pod_info,virtual_workload_type)",
         "description": "",
-        "hide": 2,
         "includeAll": false,
         "label": "Type",
         "name": "virtual_workload_type",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(kompass_pod_info{namespace=\"$namespace\", workload_kind=\"virtualworkload\"},virtual_workload_type)",
+          "query": "label_values(kompass_pod_info,virtual_workload_type)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -1396,14 +1395,14 @@
         "type": "query"
       },
       {
-        "definition": "label_values(kompass_container_cpu_usage_max_rate{namespace=\"$namespace\", created_by_kind=\"virtualworkload\"},created_by_name)",
+        "definition": "label_values(kompass_pod_info{namespace=\"$namespace\", virtual_workload_type=\"$virtual_workload_type\"},workload_name)",
         "description": "",
         "label": "Workload",
         "name": "workload_name",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(kompass_container_cpu_usage_max_rate{namespace=\"$namespace\", created_by_kind=\"virtualworkload\"},created_by_name)",
+          "query": "label_values(kompass_pod_info{namespace=\"$namespace\", virtual_workload_type=\"$virtual_workload_type\"},workload_name)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -1411,14 +1410,14 @@
         "type": "query"
       },
       {
-        "definition": "label_values(kompass_container_cpu_usage_max_rate{namespace=\"$namespace\", created_by_name=\"$workload_name\", created_by_kind=\"virtualworkload\"},container)",
+        "definition": "label_values(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\"},container)",
         "description": "",
         "label": "Container",
         "name": "container",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(kompass_container_cpu_usage_max_rate{namespace=\"$namespace\", created_by_name=\"$workload_name\", created_by_kind=\"virtualworkload\"},container)",
+          "query": "label_values(kompass_pod_info{namespace=\"$namespace\", workload_name=\"$workload_name\"},container)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
