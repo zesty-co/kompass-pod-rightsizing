@@ -38,14 +38,14 @@ Create the name of the metrics-exporter
 Create the name of the kompass rightsizing config map
 */}}
 {{- define "kompass-pod-rightsizing-config.name" -}}
-{{- printf "%s-%s" (include "name" .) "config" }}
+{{- default "kompass-rightsizing-config" .Values.podRightsizingConfig.name }}
 {{- end }}
 
 {{/*
-Create the name of the kompass rightsizing grafana dashboard config map
+Create the name of the kompass rightsizing params/override config map
 */}}
-{{- define "kompass-pod-rightsizing-grafana-dashboard-config.name" -}}
-{{- printf "%s-%s" (include "name" .) "grafana-dashboard" }}
+{{- define "kompass-pod-rightsizing-params-config.name" -}}
+{{- default "kompass-rightsizing-params-config" .Values.rightsizingParamsConfig.name }}
 {{- end }}
 
 {{/*
@@ -53,6 +53,13 @@ Create the name of the kompass rightsizing initial values BU config map
 */}}
 {{- define "kompass-pod-rightsizing-initial-values-config.name" -}}
 {{- printf "%s-%s" (include "name" .) "initial-values-config" }}
+{{- end }}
+
+{{/*
+Create the name of the kompass rightsizing grafana dashboard config map
+*/}}
+{{- define "kompass-pod-rightsizing-grafana-dashboard-config.name" -}}
+{{- printf "%s-%s" (include "name" .) "grafana-dashboard" }}
 {{- end }}
 
 {{/*

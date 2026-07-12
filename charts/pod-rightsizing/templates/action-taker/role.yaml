@@ -100,6 +100,18 @@ rules:
   - update
   - watch
 - apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
   - batch
   resources:
   - cronjobs
@@ -110,6 +122,34 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - horizontalscaling.kompass.zesty.co
+  resources:
+  - policies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - horizontalscaling.kompass.zesty.co
+  resources:
+  - policies/finalizers
+  verbs:
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - horizontalscaling.kompass.zesty.co
+  resources:
+  - policies/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - coordination.k8s.io
   resources:

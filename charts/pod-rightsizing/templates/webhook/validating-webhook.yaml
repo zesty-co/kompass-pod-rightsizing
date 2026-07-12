@@ -32,6 +32,27 @@ webhooks:
     service:
       name: {{ include "kompass-webhook-svc.name" . }}
       namespace: {{ .Release.Namespace }}
+      path: /validate-horizontalscaling-kompass-zesty-co-v1alpha1-policy
+  failurePolicy: Fail
+  name: vhorizontalscalingpolicy-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - horizontalscaling.kompass.zesty.co
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - policies
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
       path: /validate-kompass-zesty-co-v1alpha1-virtualworkload
   failurePolicy: Fail
   name: vvirtualworkload-v1alpha1.kb.io
