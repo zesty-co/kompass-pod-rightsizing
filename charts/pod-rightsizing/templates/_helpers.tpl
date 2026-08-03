@@ -35,6 +35,13 @@ Create the name of the metrics-exporter
 {{- end }}
 
 {{/*
+Create the name of the bridge-data-exporter
+*/}}
+{{- define "bridge-data-exporter.name" -}}
+{{- .Values.bridgeDataExporter.fullnameOverride | default (printf "%s-%s" (include "name" .) .Values.bridgeDataExporter.name | trunc 63 | trimSuffix "-") }}
+{{- end }}
+
+{{/*
 Create the name of the kompass rightsizing config map
 */}}
 {{- define "kompass-pod-rightsizing-config.name" -}}
@@ -100,6 +107,13 @@ Create the name of the service account to use for the system
 */}}
 {{- define "pod-rightsizing.metricsExporterServiceAccountName" -}}
 {{- default "zesty-kompass-rightsizing-metrics-exporter" .Values.metricsExporterServiceAccount.name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use for the system
+*/}}
+{{- define "pod-rightsizing.bridgeDataExporterServiceAccountName" -}}
+{{- default "zesty-kompass-rightsizing-bridge-data-exporter" .Values.bridgeDataExporterServiceAccount.name }}
 {{- end }}
 
 {{/*
@@ -208,6 +222,16 @@ Merge order (later wins): component.podLabels -> global.podLabels
 {{- $root := .root -}}
 {{- $componentValues := default (dict) .componentValues -}}
 {{- include "pod-rightsizing.mergeMaps.componentGlobal" (dict "component" (default (dict) $componentValues.podLabels) "global" (default (dict) $root.Values.global.podLabels)) -}}
+{{- end -}}
+
+{{/*
+Build effective workload labels for a component.
+Merge order (later wins): component.workloadLabels -> global.workloadLabels
+*/}}
+{{- define "pod-rightsizing.workloadLabels" -}}
+{{- $root := .root -}}
+{{- $componentValues := default (dict) .componentValues -}}
+{{- include "pod-rightsizing.mergeMaps.componentGlobal" (dict "component" (default (dict) $componentValues.workloadLabels) "global" (default (dict) $root.Values.global.workloadLabels)) -}}
 {{- end -}}
 
 {{/*
@@ -413,6 +437,23 @@ Metrics Exporter resources with minimum values enforced
 */}}
 {{- define "pod-rightsizing.metricsExporter.resources" -}}
 {{- $resources := .Values.metricsExporter.resources | default dict -}}
+{{- $userCpu := $resources.requests.cpu | default "100m" -}}
+{{- $userMemory := $resources.requests.memory | default "128Mi" -}}
+resources:
+  requests:
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "kind" "cpu" "user" $userCpu "min" "100m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "kind" "memory" "user" $userMemory "min" "128Mi") }}
+{{- with $resources.limits }}
+  limits:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Bridge Data Exporter resources with minimum values enforced
+*/}}
+{{- define "pod-rightsizing.bridgeDataExporter.resources" -}}
+{{- $resources := .Values.bridgeDataExporter.resources | default dict -}}
 {{- $userCpu := $resources.requests.cpu | default "100m" -}}
 {{- $userMemory := $resources.requests.memory | default "128Mi" -}}
 resources:

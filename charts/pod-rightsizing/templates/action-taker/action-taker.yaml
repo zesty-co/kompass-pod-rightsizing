@@ -3,6 +3,7 @@
 {{- $actionTakerKubeRbacProxySecurityContext := include "pod-rightsizing.securityContext.actionTakerKubeRbacProxy" (dict "root" . "actionTakerSecurityContext" .Values.actionTaker.securityContext "kubeRbacProxySecurityContext" .Values.actionTaker.kubeRbacProxy.securityContext) | fromYaml }}
 {{- $actionTakerPodLabels := include "pod-rightsizing.podTemplateLabels" (dict "root" . "componentValues" .Values.actionTaker) | fromYaml }}
 {{- $actionTakerPodAnnotations := include "pod-rightsizing.podTemplateAnnotations" (dict "root" . "componentValues" .Values.actionTaker) | fromYaml }}
+{{- $actionTakerWorkloadLabels := include "pod-rightsizing.workloadLabels" (dict "root" . "componentValues" .Values.actionTaker) | fromYaml }}
 {{- $actionTakerDefaultAffinity := include "pod-rightsizing.actionTaker.defaultAffinity" . | fromYaml }}
 {{- $actionTakerAffinity := include "pod-rightsizing.affinity" (dict "root" . "componentValues" .Values.actionTaker "baseAffinity" $actionTakerDefaultAffinity) | fromYaml }}
 {{- $actionTakerImagePullSecrets := include "pod-rightsizing.imagePullSecrets" (dict "root" . "componentValues" .Values.actionTaker) | fromYamlArray }}
@@ -15,7 +16,7 @@ metadata:
   labels:
     control-plane: controller-manager
     {{- include "pod-rightsizing.labels" . | nindent 4 }} # Don't change this, since the component monitor uses labels from here to identify the component
-    {{- with .Values.additionalLabels }}
+    {{- with $actionTakerWorkloadLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
   name: {{ include "action-taker.name" . }}
@@ -37,9 +38,6 @@ spec:
         control-plane: controller-manager
         app.kubernetes.io/name: pod-rightsizing
         {{- with $actionTakerPodLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-        {{- with .Values.additionalLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -116,6 +114,9 @@ spec:
             - containerPort: {{ .Values.actionTaker.serverPort }}
               name: http-server
               protocol: TCP
+            - containerPort: {{ .Values.bridgeActor.port | default 50052 }}
+              name: bridge-actor
+              protocol: TCP
           volumeMounts:
             - mountPath: /tmp/k8s-webhook-server/serving-certs
               name: webhook-certs
@@ -152,6 +153,28 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: BRIDGE_ACTOR_PORT
+              value: {{ (.Values.bridgeActor.port | default 50052) | quote }}
+            - name: BRIDGE_HUB_ADDRESS
+              value: {{ .Values.bridgeActor.hubAddress | quote }}
+            - name: ORG_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.bridgeActor.identitySecretName | quote }}
+                  key: ORG_ID
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.bridgeActor.identitySecretName | quote }}
+                  key: CLUSTER_ID
             {{- if and .Values.global.cxLogging .Values.global.cxLogging.enabled }}
             - name: CX_API_KEY
               valueFrom:

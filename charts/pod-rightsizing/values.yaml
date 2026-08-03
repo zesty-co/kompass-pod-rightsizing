@@ -8,6 +8,8 @@ serviceAccount:
   name: "zesty-kompass-rightsizing"
 metricsExporterServiceAccount:
   name: "zesty-kompass-rightsizing-metrics-exporter"
+bridgeDataExporterServiceAccount:
+  name: "zesty-kompass-rightsizing-bridge-data-exporter"
 cxLogging:
   apiKey: ""
   clusterName: ""
@@ -22,12 +24,17 @@ global:
   imagePullSecrets: []
   podLabels: {}
   podAnnotations: {}
+  workloadLabels: {}
   affinity: {}
   topologySpreadConstraints: []
   runtimeClassName: ""
-  # automountServiceAccountToken: true  
+  # automountServiceAccountToken: true
   podSecurityContext: {}
   securityContext: {}
+bridgeActor:
+  port: 50051
+  hubAddress: kompass-bridge:50051
+  identitySecretName: kompass-insights-secret
 actionTaker:
   serverPort: 9091
   # fullnameOverride: ""
@@ -44,6 +51,7 @@ actionTaker:
   imagePullSecrets: []
   podLabels: {}
   podAnnotations: {}
+  workloadLabels: {}
   affinity: {}
   topologySpreadConstraints: []
   # automountServiceAccountToken: true
@@ -73,7 +81,7 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "v0.7.0"
+    tag: "v0.8.0"
   resources:
     requests:
       cpu: 100m
@@ -100,6 +108,7 @@ recommendationsMaker:
   imagePullSecrets: []
   podLabels: {}
   podAnnotations: {}
+  workloadLabels: {}
   affinity: {}
   topologySpreadConstraints: []
   # automountServiceAccountToken: true
@@ -126,7 +135,7 @@ recommendationsMaker:
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "v0.7.0"
+    tag: "v0.8.0"
     args:
   port: 8088
   resources:
@@ -139,6 +148,7 @@ metricsExporter:
   imagePullSecrets: []
   podLabels: {}
   podAnnotations: {}
+  workloadLabels: {}
   affinity: {}
   topologySpreadConstraints: []
   # automountServiceAccountToken: true
@@ -162,7 +172,46 @@ metricsExporter:
   #     type: RuntimeDefault
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "v0.7.0"
+    tag: "v0.8.0"
+    args:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+bridgeDataExporter:
+  name: "bridge-data-exporter"
+  schedule: "0 * * * *"
+  exportWindow: "1h"
+  exportTimeout: "10m"
+  runtimeClassName: ""
+  imagePullSecrets: []
+  podLabels: {}
+  podAnnotations: {}
+  workloadLabels: {}
+  affinity: {}
+  topologySpreadConstraints: []
+  # automountServiceAccountToken: true
+  # Pod-level security context applied to the metrics-exporter pod.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  podSecurityContext: {}
+  # Example:
+  # podSecurityContext:
+  #   runAsNonRoot: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  # Container-level security context applied to the metrics-exporter container.
+  securityContext: {}
+  # Example:
+  # securityContext:
+  #   allowPrivilegeEscalation: false
+  #   capabilities:
+  #     drop:
+  #       - ALL
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  image:
+    name: "/pod-rightsizing/bridge-data-exporter"
+    tag: "v0.8.0"
     args:
   resources:
     requests:
@@ -177,5 +226,6 @@ hooks:
     registry: 672188301118.dkr.ecr.eu-west-1.amazonaws.com/docker-hub/bitnami
     repository: kubectl
     tag: latest
+  workloadLabels: {}
 additionalSupportedKinds: []
 secret: kompass-rightsizing-secret
