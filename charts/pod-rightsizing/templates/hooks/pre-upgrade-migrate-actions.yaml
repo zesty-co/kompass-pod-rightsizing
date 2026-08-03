@@ -1,6 +1,7 @@
 {{- $hooksPodSecurityContext := include "pod-rightsizing.securityContext.pod" (dict "root" . "componentSecurityContext" dict) | fromYaml }}
 {{- $hooksSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" dict) | fromYaml }}
 {{- $hookImagePullSecrets := include "pod-rightsizing.hookImagePullSecrets" . | fromYamlArray -}}
+{{- $hooksWorkloadLabels := include "pod-rightsizing.workloadLabels" (dict "root" . "componentValues" .Values.hooks) | fromYaml }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -63,6 +64,10 @@ metadata:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed,before-hook-creation
+  {{- with $hooksWorkloadLabels }}
+  labels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   ttlSecondsAfterFinished: 300
   template:

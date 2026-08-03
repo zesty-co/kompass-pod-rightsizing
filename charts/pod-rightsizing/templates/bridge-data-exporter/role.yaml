@@ -1,0 +1,15 @@
+{{- if and .Values.jvmMetrics .Values.jvmMetrics.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: bridge-data-exporter-role
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pod-rightsizing.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames:
+      - {{ .Values.bridgeActor.identitySecretName | quote }}
+    verbs: ["get"]
+{{- end }}

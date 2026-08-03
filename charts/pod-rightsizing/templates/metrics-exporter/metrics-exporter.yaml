@@ -3,6 +3,7 @@
 {{- $metricsExporterSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" .Values.metricsExporter.securityContext) | fromYaml }}
 {{- $metricsExporterPodLabels := include "pod-rightsizing.podTemplateLabels" (dict "root" . "componentValues" .Values.metricsExporter) | fromYaml }}
 {{- $metricsExporterPodAnnotations := include "pod-rightsizing.podTemplateAnnotations" (dict "root" . "componentValues" .Values.metricsExporter) | fromYaml }}
+{{- $metricsExporterWorkloadLabels := include "pod-rightsizing.workloadLabels" (dict "root" . "componentValues" .Values.metricsExporter) | fromYaml }}
 {{- $metricsExporterAffinity := include "pod-rightsizing.affinity" (dict "root" . "componentValues" .Values.metricsExporter) | fromYaml }}
 {{- $metricsExporterImagePullSecrets := include "pod-rightsizing.imagePullSecrets" (dict "root" . "componentValues" .Values.metricsExporter) | fromYamlArray }}
 {{- $metricsExporterTopologySpreadConstraints := include "pod-rightsizing.topologySpreadConstraints" (dict "root" . "componentValues" .Values.metricsExporter) | fromYamlArray }}
@@ -16,7 +17,7 @@ metadata:
   labels:
     app: {{ include "metrics-exporter.name" . }}
     {{- include "pod-rightsizing.labels" . | nindent 4 }}
-    {{- with .Values.additionalLabels }}
+    {{- with $metricsExporterWorkloadLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
@@ -25,6 +26,11 @@ spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
   jobTemplate:
+    {{- with $metricsExporterWorkloadLabels }}
+    metadata:
+      labels:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
     spec:
       backoffLimit: 1
       template:
@@ -37,9 +43,6 @@ spec:
             app: {{ include "metrics-exporter.name" . }}
             {{- include "pod-rightsizing.labels" . | nindent 12 }}
             {{- with $metricsExporterPodLabels }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
-            {{- with .Values.additionalLabels }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
         spec:

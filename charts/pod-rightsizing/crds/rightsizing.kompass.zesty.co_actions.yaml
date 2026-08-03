@@ -20,7 +20,7 @@ spec:
       name: Type
       type: string
     - description: Execution Method
-      jsonPath: .spec.executionMethod
+      jsonPath: .status.executionMethod
       name: Execution Method
       type: string
     - description: Status
@@ -77,13 +77,6 @@ spec:
                 enum:
                 - Orchestration
                 - Rollback
-                type: string
-              executionMethod:
-                description: Method used to execute the action.
-                enum:
-                - InPlace
-                - PodMutation
-                - WorkloadPatch
                 type: string
               priority:
                 description: Priority used to order or resolve action conflicts.
@@ -219,6 +212,14 @@ spec:
                         type: string
                     type: object
                 type: object
+              executionMethod:
+                description: Method used to execute the action (resolved by the action-taker
+                  at apply time).
+                enum:
+                - InPlace
+                - PodMutation
+                - WorkloadPatch
+                type: string
               executionTimestamp:
                 format: date-time
                 type: string

@@ -43,16 +43,15 @@ spec:
             properties:
               absoluteMinimumReplicas:
                 default: 1
-                description: The absolute minimum number of replicas that a workload
-                  can have.
+                description: Lowest minimum replica count that Replica optimization
+                  can apply to a workload. Replica optimization does not reduce minimum
+                  replicas below this value.
                 format: int64
                 minimum: 1
                 type: integer
               appList:
                 description: Explicit list of workloads this policy applies to.
                 items:
-                  description: AppListItem represents an explicit workload reference
-                    bound to a policy.
                   properties:
                     kind:
                       type: string
@@ -71,10 +70,10 @@ spec:
                   to.
                 properties:
                   labels:
-                    description: |-
-                      A label selector is a label query over a set of resources. The result of matchLabels and
-                      matchExpressions are ANDed. An empty label selector matches all objects. A null
-                      label selector matches no objects.
+                    description: Label selector used to select workloads managed by
+                      this policy. The `matchLabels` and `matchExpressions` requirements
+                      are ANDed. An empty selector matches all workloads, and a null
+                      selector matches no workloads.
                     properties:
                       matchExpressions:
                         description: matchExpressions is a list of label selector
@@ -122,11 +121,16 @@ spec:
                   namespaces:
                     properties:
                       operator:
+                        description: Specifies whether the namespaces in `values`
+                          are included in or excluded from workload selection (Include,
+                          Exclude).
                         enum:
                         - Include
                         - Exclude
                         type: string
                       values:
+                        description: Namespaces to include in or exclude from workload
+                          selection.
                         items:
                           type: string
                         type: array

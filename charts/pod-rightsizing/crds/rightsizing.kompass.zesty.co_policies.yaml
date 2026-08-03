@@ -42,10 +42,8 @@ spec:
             description: PolicySpec defines the desired state of Policy.
             properties:
               appList:
-                description: Explicit list of workloads this policy applies to.
+                description: Workloads managed by this policy.
                 items:
-                  description: AppListItem represents an explicit workload reference
-                    bound to a policy.
                   properties:
                     kind:
                       type: string
@@ -64,10 +62,10 @@ spec:
                   to.
                 properties:
                   labels:
-                    description: |-
-                      A label selector is a label query over a set of resources. The result of matchLabels and
-                      matchExpressions are ANDed. An empty label selector matches all objects. A null
-                      label selector matches no objects.
+                    description: Label selector used to select workloads managed by
+                      this policy. The `matchLabels` and `matchExpressions` requirements
+                      are ANDed. An empty selector matches all workloads, and a null
+                      selector matches no workloads.
                     properties:
                       matchExpressions:
                         description: matchExpressions is a list of label selector
@@ -115,11 +113,16 @@ spec:
                   namespaces:
                     properties:
                       operator:
+                        description: Specifies whether the namespaces in `values`
+                          are included in or excluded from workload selection (Include,
+                          Exclude).
                         enum:
                         - Include
                         - Exclude
                         type: string
                       values:
+                        description: Namespaces to include in or exclude from workload
+                          selection.
                         items:
                           type: string
                         type: array
@@ -130,7 +133,8 @@ spec:
                 type: object
               cooldownPeriod:
                 default: 120m
-                description: Minimum time between successive actions on the same workload.
+                description: Minimum time between consecutive rightsizing changes
+                  to the same workload.
                 format: duration
                 type: string
               cpu:
@@ -138,19 +142,21 @@ spec:
                 properties:
                   bufferPercentage:
                     default: 20
-                    description: Safety buffer added to CPU recommendations.
+                    description: Percentage added to the recommended CPU request as
+                      a safety buffer.
                     format: int32
                     maximum: 100
                     minimum: 0
                     type: integer
                   ignoreThrottlingEvent:
                     default: false
-                    description: Whether CPU throttling events are ignored.
+                    description: Specifies whether CPU throttling events are ignored
+                      when evaluating rollback of a rightsizing change.
                     type: boolean
                   minimumImpactPercentage:
                     default: 10
-                    description: Minimum percentage change required for a CPU scale
-                      action.
+                    description: Minimum percentage difference between the current
+                      and recommended CPU requests required to apply a change.
                     maximum: 100
                     minimum: 0
                     type: integer
@@ -159,7 +165,8 @@ spec:
                     - type: integer
                     - type: string
                     default: 100m
-                    description: Minimum CPU increment for scale-up actions.
+                    description: Minimum increase in CPU request that a scale-up change
+                      can apply.
                     pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                     x-kubernetes-int-or-string: true
                   minimumValueForScaleDown:
@@ -167,13 +174,14 @@ spec:
                     - type: integer
                     - type: string
                     default: 10m
-                    description: Minimum allowed CPU value after scale-down.
+                    description: Minimum CPU request that a scale-down change can
+                      set.
                     pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                     x-kubernetes-int-or-string: true
                   optimizationStrategy:
                     default: p95
-                    description: Over-time aggregation strategy for CPU recommendations
-                      ("p85", "p95", "max").
+                    description: Specifies how CPU usage samples are aggregated over
+                      the lookback period (p85, p95, max).
                     enum:
                     - p85
                     - p95
@@ -181,8 +189,8 @@ spec:
                     type: string
                   replicaAggregationMethod:
                     default: max
-                    description: Per-sample aggregation strategy for CPU recommendations
-                      ("p85", "p95", "max", "custom1", "custom2").
+                    description: Specifies how CPU usage is aggregated across Pod
+                      replicas for each sample (p85, p95, max, custom1, custom2).
                     enum:
                     - p85
                     - p95
@@ -201,8 +209,8 @@ spec:
                 type: object
               dataCoveragePercentage:
                 default: 70
-                description: Minimum percentage of the lookback window that must contain
-                  data.
+                description: Minimum percentage of the lookback period for which metrics
+                  must be available before a recommendation is generated.
                 maximum: 100
                 minimum: 0
                 type: integer
@@ -211,12 +219,13 @@ spec:
                 type: string
               evictPodsInDeferredState:
                 default: true
-                description: Whether to evict pods in deferred state when actions
-                  are created. false by default
+                description: Specifies whether Pods associated with deferred actions
+                  are evicted when the actions are created. The default is false.
                 type: boolean
               lookbackPeriod:
                 default: 72h
-                description: Time window used to evaluate historical metrics.
+                description: Period of historical workload metrics used to generate
+                  recommendations.
                 format: duration
                 type: string
               memory:
@@ -224,19 +233,21 @@ spec:
                 properties:
                   bufferPercentage:
                     default: 20
-                    description: Safety buffer added to memory recommendations.
+                    description: Percentage added to the recommended memory request
+                      as a safety buffer.
                     format: int32
                     maximum: 100
                     minimum: 0
                     type: integer
                   ignoreOomEvent:
                     default: false
-                    description: Whether out-of-memory (OOM) events are ignored.
+                    description: Specifies whether out-of-memory events are ignored
+                      when evaluating rollback of a rightsizing change.
                     type: boolean
                   minimumImpactPercentage:
                     default: 10
-                    description: Minimum percentage change required for a memory scale
-                      action.
+                    description: Minimum percentage difference between the current
+                      and recommended memory requests required to apply a change.
                     maximum: 100
                     minimum: 0
                     type: integer
@@ -245,7 +256,8 @@ spec:
                     - type: integer
                     - type: string
                     default: 100Mi
-                    description: Minimum memory increment for scale-up actions.
+                    description: Minimum increase in memory request that a scale-up
+                      change can apply.
                     pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                     x-kubernetes-int-or-string: true
                   minimumValueForScaleDown:
@@ -253,13 +265,14 @@ spec:
                     - type: integer
                     - type: string
                     default: 10Mi
-                    description: Minimum allowed memory value after scale-down.
+                    description: Minimum memory request that a scale-down change can
+                      set.
                     pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                     x-kubernetes-int-or-string: true
                   optimizationStrategy:
                     default: p95
-                    description: Over-time aggregation strategy for memory recommendations
-                      ("p95", "p99", "max").
+                    description: Specifies how memory usage samples are aggregated
+                      over the lookback period (p95, p99, max).
                     enum:
                     - p95
                     - p99
@@ -267,8 +280,8 @@ spec:
                     type: string
                   replicaAggregationMethod:
                     default: max
-                    description: Per-sample aggregation strategy for memory recommendations
-                      ("p95", "p99", "max", "custom1", "custom2").
+                    description: Specifies how memory usage is aggregated across Pod
+                      replicas for each sample (p95, p99, max, custom1, custom2).
                     enum:
                     - p95
                     - p99
@@ -286,13 +299,12 @@ spec:
                 - replicaAggregationMethod
                 type: object
               preferInPlace:
-                description: |-
-                  Whether to prefer in-place execution for actions created by this policy.
-                  Supported only in kubernetes 1.33+
+                description: Specifies whether in-place resource updates are preferred
+                  when supported. In-place updates require Kubernetes 1.33 or later.
                 type: boolean
               priority:
-                description: Policy precedence when multiple policies match the same
-                  workload.
+                description: Policy precedence when multiple policies match a workload.
+                  Lower values have higher priority.
                 format: int64
                 minimum: 0
                 type: integer
@@ -302,21 +314,24 @@ spec:
                     description: CPU Boost
                     properties:
                       multiplier:
-                        description: Multiplier for boost.
+                        description: Value by which the CPU request is multiplied
+                          during the startup boost.
                         minimum: 1
                         type: number
                     required:
                     - multiplier
                     type: object
                   duration:
-                    description: Duration of the startup boost.
+                    description: Length of time the startup boost is applied after
+                      a Pod is created.
                     format: duration
                     type: string
                   memory:
                     description: Memory Boost
                     properties:
                       multiplier:
-                        description: Multiplier for boost.
+                        description: Value by which the memory request is multiplied
+                          during the startup boost.
                         minimum: 1
                         type: number
                     required:
@@ -339,6 +354,10 @@ spec:
             x-kubernetes-validations:
             - message: startupBoost requires preferInPlace to be true
               rule: '!has(self.startupBoost) || self.preferInPlace'
+            - message: cpu optimization cannot be removed from an existing policy
+              rule: '!(has(oldSelf.cpu) && !has(self.cpu))'
+            - message: memory optimization cannot be removed from an existing policy
+              rule: '!(has(oldSelf.memory) && !has(self.memory))'
           status:
             description: PolicyStatus defines the observed state of Policy
             properties:

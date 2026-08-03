@@ -3,6 +3,7 @@
 {{- $recommendationsMakerPodLabels := include "pod-rightsizing.podTemplateLabels" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
 {{- $recommendationsMakerPodAnnotations := include "pod-rightsizing.podTemplateAnnotations" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
 {{- $recommendationsMakerPodAnnotations = mergeOverwrite (deepCopy $recommendationsMakerPodAnnotations) (dict "checksum/pilot-config" (include (print $.Template.BasePath "/config/pilotConfigmap.yaml") . | sha256sum)) }}
+{{- $recommendationsMakerWorkloadLabels := include "pod-rightsizing.workloadLabels" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
 {{- $recommendationsMakerAffinity := include "pod-rightsizing.affinity" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYaml }}
 {{- $recommendationsMakerImagePullSecrets := include "pod-rightsizing.imagePullSecrets" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYamlArray }}
 {{- $recommendationsMakerTopologySpreadConstraints := include "pod-rightsizing.topologySpreadConstraints" (dict "root" . "componentValues" .Values.recommendationsMaker) | fromYamlArray }}
@@ -16,7 +17,7 @@ metadata:
   labels:
     app: {{ include "recommendations-maker.name" . }}
     {{- include "pod-rightsizing.labels" . | nindent 4 }}
-    {{- with .Values.additionalLabels }}
+    {{- with $recommendationsMakerWorkloadLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
@@ -32,9 +33,6 @@ spec:
         app: {{ include "recommendations-maker.name" . }}
         app.kubernetes.io/name: pod-rightsizing
         {{- with $recommendationsMakerPodLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-        {{- with .Values.additionalLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -90,6 +88,28 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: BRIDGE_ACTOR_PORT
+              value: {{ (.Values.bridgeActor.port | default 50052) | quote }}
+            - name: BRIDGE_HUB_ADDRESS
+              value: {{ .Values.bridgeActor.hubAddress | quote }}
+            - name: ORG_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.bridgeActor.identitySecretName | quote }}
+                  key: ORG_ID
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.bridgeActor.identitySecretName | quote }}
+                  key: CLUSTER_ID
             - name: RIGHTSIZING_SECRET_NAME
               value: {{ .Values.secret }}
             {{- if and .Values.global.cxLogging .Values.global.cxLogging.enabled }}
@@ -143,6 +163,9 @@ spec:
           ports:
             - containerPort: 8088
               name: http
+              protocol: TCP
+            - containerPort: {{ .Values.bridgeActor.port | default 50052 }}
+              name: bridge-actor
               protocol: TCP
       volumes:
         - name: recommendations-storage
