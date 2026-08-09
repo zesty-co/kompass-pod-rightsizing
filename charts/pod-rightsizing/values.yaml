@@ -81,7 +81,7 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "v0.8.0"
+    tag: "v0.8.1"
   resources:
     requests:
       cpu: 100m
@@ -135,7 +135,7 @@ recommendationsMaker:
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "v0.8.0"
+    tag: "v0.8.1"
     args:
   port: 8088
   resources:
@@ -172,7 +172,7 @@ metricsExporter:
   #     type: RuntimeDefault
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "v0.8.0"
+    tag: "v0.8.1"
     args:
   resources:
     requests:
@@ -180,9 +180,10 @@ metricsExporter:
       memory: 128Mi
 bridgeDataExporter:
   name: "bridge-data-exporter"
-  schedule: "0 * * * *"
-  exportWindow: "1h"
+  schedule: "*/15 * * * *"
+  exportWindow: "15m"
   exportTimeout: "10m"
+  maxBackfillWindowsPerRun: 672
   runtimeClassName: ""
   imagePullSecrets: []
   podLabels: {}
@@ -211,12 +212,50 @@ bridgeDataExporter:
   #     type: RuntimeDefault
   image:
     name: "/pod-rightsizing/bridge-data-exporter"
-    tag: "v0.8.0"
+    tag: "v0.8.1"
     args:
   resources:
     requests:
       cpu: 100m
       memory: 128Mi
+gpuMetrics:
+  enabled: false
+  dcgmExporter:
+    # Labels used to discover the customer-managed DCGM Exporter pods.
+    podSelector:
+      - label: app.kubernetes.io/name
+        value: dcgm-exporter
+      - label: app.kubernetes.io/component
+        value: dcgm-exporter
+    # Name of the container port that exposes DCGM metrics.
+    metricsPortName: metrics
+  runtimeClassName: ""
+  imagePullSecrets: []
+  podLabels: {}
+  podAnnotations: {}
+  workloadLabels: {}
+  affinity: {}
+  topologySpreadConstraints: []
+  # Pod-level security context applied to the GPU pod NVML exporter pod.
+  # The exporter uses runAsNonRoot and RuntimeDefault seccomp by default.
+  podSecurityContext: {}
+  # Example:
+  # podSecurityContext:
+  #   fsGroup: 2000
+  # Container-level security context applied to the GPU pod NVML exporter.
+  # The exporter drops all capabilities, prevents privilege escalation, uses a
+  # read-only root filesystem, and runs as non-root UID 65532 by default.
+  securityContext: {}
+  # Example:
+  # securityContext:
+  #   runAsUser: 2000
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 250m
+      memory: 96Mi
 podRightsizingConfig:
   name: ""
 rightsizingParamsConfig:
