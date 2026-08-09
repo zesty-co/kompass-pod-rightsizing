@@ -1,4 +1,6 @@
-{{- if and .Values.jvmMetrics .Values.jvmMetrics.enabled }}
+{{- $jvmEnabled := default false (and .Values.jvmMetrics .Values.jvmMetrics.enabled) }}
+{{- $gpuEnabled := default false (and .Values.gpuMetrics .Values.gpuMetrics.enabled) }}
+{{- if or $jvmEnabled $gpuEnabled }}
 {{- $bridgeDataExporterPodSecurityContext := include "pod-rightsizing.securityContext.pod" (dict "root" . "componentSecurityContext" .Values.bridgeDataExporter.podSecurityContext) | fromYaml }}
 {{- $bridgeDataExporterSecurityContext := include "pod-rightsizing.securityContext.container" (dict "root" . "componentSecurityContext" .Values.bridgeDataExporter.securityContext) | fromYaml }}
 {{- $bridgeDataExporterPodLabels := include "pod-rightsizing.podTemplateLabels" (dict "root" . "componentValues" .Values.bridgeDataExporter) | fromYaml }}
@@ -21,7 +23,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  schedule: {{ .Values.bridgeDataExporter.schedule | default "0 * * * *" | quote }}
+  schedule: {{ .Values.bridgeDataExporter.schedule | default "*/15 * * * *" | quote }}
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
@@ -78,10 +80,14 @@ spec:
                 {{- toYaml .Values.bridgeDataExporter.image.args | nindent 16 }}
               {{- end }}
               env:
+                - name: CM_NAMESPACE
+                  value: {{ .Release.Namespace }}
                 - name: VM_URL
                   value: {{ include "pod-rightsizing.victoriaMetrics.url" . | quote }}
                 - name: JVM_ENABLED
-                  value: {{ and .Values.jvmMetrics .Values.jvmMetrics.enabled | quote }}
+                  value: {{ $jvmEnabled | quote }}
+                - name: GPU_ENABLED
+                  value: {{ $gpuEnabled | quote }}
                 - name: BRIDGE_HUB_ADDRESS
                   value: {{ .Values.bridgeActor.hubAddress | quote }}
                 - name: INSIGHTS_SECRET_NAME
@@ -94,6 +100,8 @@ spec:
                   value: {{ .Values.bridgeDataExporter.exportWindow | quote }}
                 - name: EXPORT_TIMEOUT
                   value: {{ .Values.bridgeDataExporter.exportTimeout | quote }}
+                - name: BACKFILL_MAX_WINDOWS_PER_RUN
+                  value: {{ .Values.bridgeDataExporter.maxBackfillWindowsPerRun | quote }}
               {{- with $bridgeDataExporterSecurityContext }}
               securityContext:
                 {{- toYaml . | nindent 16 }}

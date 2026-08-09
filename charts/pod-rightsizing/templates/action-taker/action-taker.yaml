@@ -15,6 +15,7 @@ kind: Deployment
 metadata:
   labels:
     control-plane: controller-manager
+    app.kubernetes.io/component: action-taker
     {{- include "pod-rightsizing.labels" . | nindent 4 }} # Don't change this, since the component monitor uses labels from here to identify the component
     {{- with $actionTakerWorkloadLabels }}
     {{- toYaml . | nindent 4 }}
@@ -37,6 +38,7 @@ spec:
       labels:
         control-plane: controller-manager
         app.kubernetes.io/name: pod-rightsizing
+        app.kubernetes.io/component: action-taker
         {{- with $actionTakerPodLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
