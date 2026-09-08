@@ -8,10 +8,14 @@ metadata:
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 data:
+  kompass.zesty.co_clustervirtualworkloads.yaml: |
+{{ .Files.Get "crds/kompass.zesty.co_clustervirtualworkloads.yaml" | indent 4 }}
   kompass.zesty.co_virtualworkloads.yaml: |
 {{ .Files.Get "crds/kompass.zesty.co_virtualworkloads.yaml" | indent 4 }}
   rightsizing.kompass.zesty.co_actions.yaml: |
 {{ .Files.Get "crds/rightsizing.kompass.zesty.co_actions.yaml" | indent 4 }}
+  rightsizing.kompass.zesty.co_clusteractions.yaml: |
+{{ .Files.Get "crds/rightsizing.kompass.zesty.co_clusteractions.yaml" | indent 4 }}
   rightsizing.kompass.zesty.co_policies.yaml: |
 {{ .Files.Get "crds/rightsizing.kompass.zesty.co_policies.yaml" | indent 4 }}
   horizontalscaling.kompass.zesty.co_policies.yaml: |

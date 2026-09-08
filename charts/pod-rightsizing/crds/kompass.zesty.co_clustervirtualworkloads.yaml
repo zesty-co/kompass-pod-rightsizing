@@ -4,26 +4,25 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
-  name: virtualworkloads.kompass.zesty.co
+  name: clustervirtualworkloads.kompass.zesty.co
 spec:
   group: kompass.zesty.co
   names:
-    kind: VirtualWorkload
-    listKind: VirtualWorkloadList
-    plural: virtualworkloads
+    kind: ClusterVirtualWorkload
+    listKind: ClusterVirtualWorkloadList
+    plural: clustervirtualworkloads
     shortNames:
-    - vw
-    - vwl
-    - vworkload
-    - virtualworkload
-    singular: virtualworkload
-  scope: Namespaced
+    - cvw
+    - cvwl
+    - clustervw
+    singular: clustervirtualworkload
+  scope: Cluster
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: VirtualWorkload defines an automated grouping of workloads to
-          enable rightsizing based on shared usage patterns.
+        description: ClusterVirtualWorkload defines a cluster-scoped automated grouping
+          of workloads.
         properties:
           apiVersion:
             description: |-

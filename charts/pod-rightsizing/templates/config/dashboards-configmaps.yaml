@@ -14,3 +14,5 @@ data:
 {{ .Files.Get "dashboards/workloads-table.json" | indent 4 }}
   audit-log-dashboard.json: |-
 {{ .Files.Get "dashboards/audit-log-dashboard.json" | indent 4 }}
+  jvm-dashboard.json: |-
+{{ .Files.Get "dashboards/jvm-dashboard.json" | indent 4 }}

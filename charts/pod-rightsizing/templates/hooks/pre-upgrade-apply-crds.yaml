@@ -188,7 +188,9 @@ spec:
               echo "[INFO] Waiting for CRDs to become Established..."
 
               kubectl wait --for=condition=Established --timeout=120s crd/virtualworkloads.kompass.zesty.co
+              kubectl wait --for=condition=Established --timeout=120s crd/clustervirtualworkloads.kompass.zesty.co
               kubectl wait --for=condition=Established --timeout=120s crd/actions.rightsizing.kompass.zesty.co
+              kubectl wait --for=condition=Established --timeout=120s crd/clusteractions.rightsizing.kompass.zesty.co
               kubectl wait --for=condition=Established --timeout=120s crd/policies.rightsizing.kompass.zesty.co
               kubectl wait --for=condition=Established --timeout=120s crd/policies.horizontalscaling.kompass.zesty.co
               kubectl wait --for=condition=Established --timeout=120s crd/initialvalues.rightsizing.kompass.zesty.co
