@@ -73,6 +73,26 @@ webhooks:
     service:
       name: {{ include "kompass-webhook-svc.name" . }}
       namespace: {{ .Release.Namespace }}
+      path: /validate-kompass-zesty-co-v1alpha1-clustervirtualworkload
+  failurePolicy: Fail
+  name: vclustervirtualworkload-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - kompass.zesty.co
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clustervirtualworkloads
+  sideEffects: NoneOnDryRun
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "kompass-webhook-svc.name" . }}
+      namespace: {{ .Release.Namespace }}
       path: /validate-rightsizing-kompass-zesty-co-v1alpha1-initialvalues
   failurePolicy: Fail
   name: vinitialvalues-v1alpha1.kb.io

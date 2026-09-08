@@ -1,8 +1,23 @@
-{{- if and .Values.jvmMetrics .Values.jvmMetrics.enabled }}
-{{- if not $.Values.jvmMetrics.scrapeConfigs }}
-{{- fail "scrapeConfigs must be defined" }}
+{{- $scrapeConfigs := list }}
+{{- $jvmMetrics := .Values.jvmMetrics | default dict }}
+{{- $autoDiscovery := $jvmMetrics.autoDiscovery | default dict }}
+{{- if $jvmMetrics.enabled }}
+{{- if not $jvmMetrics.scrapeConfigs }}
+{{- if not ($autoDiscovery.enabled | default false) }}
+{{- fail "jvmMetrics.scrapeConfigs must be defined when jvmMetrics.autoDiscovery.enabled is false" }}
 {{- end }}
-{{- range $index, $scrapeConfig := $.Values.jvmMetrics.scrapeConfigs }}
+{{- else }}
+{{- range $jvmMetrics.scrapeConfigs }}
+{{- $scrapeConfigs = append $scrapeConfigs . }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if and ($jvmMetrics.enabled | default false) ($autoDiscovery.enabled | default false) }}
+{{- $autoDiscoveryScrapeConfig := dict "annotations" (dict "kompass.zesty.co/jvm-auto-discovered" "true") }}
+{{- $scrapeConfigs = append $scrapeConfigs $autoDiscoveryScrapeConfig }}
+{{- end }}
+{{- if $scrapeConfigs }}
+{{- range $index, $scrapeConfig := $scrapeConfigs }}
 {{- $labelKeys := keys ($scrapeConfig.labels | default dict) | sortAlpha }}
 {{- $annotationKeys := keys ($scrapeConfig.annotations | default dict) | sortAlpha }}
 {{- if not (or $labelKeys $annotationKeys) }}

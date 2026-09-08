@@ -10,6 +10,8 @@ metricsExporterServiceAccount:
   name: "zesty-kompass-rightsizing-metrics-exporter"
 bridgeDataExporterServiceAccount:
   name: "zesty-kompass-rightsizing-bridge-data-exporter"
+guardianServiceAccount:
+  name: "zesty-kompass-guardian"
 cxLogging:
   apiKey: ""
   clusterName: ""
@@ -81,7 +83,37 @@ actionTaker:
   name: "action-taker"
   image:
     name: "/pod-rightsizing/action-taker"
-    tag: "v0.8.1"
+    tag: "v0.8.2"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+guardian:
+  enabled: false
+  replicaCount: 1
+  priorityClassName: ""
+  runtimeClassName: ""
+  imagePullSecrets: []
+  podLabels: {}
+  podAnnotations: {}
+  workloadLabels: {}
+  affinity: {}
+  topologySpreadConstraints: []
+  # automountServiceAccountToken: true
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  image:
+    name: "/pod-rightsizing/guardian"
+    tag: "v0.8.2"
   resources:
     requests:
       cpu: 100m
@@ -90,7 +122,6 @@ config:
   matchNamespaces:
   excludeNamespaces:
     - "kube-system"
-    - "zesty-system"
   probeEventsInterval: 1m
   builtinPolicies:
     - balanced
@@ -100,6 +131,8 @@ config:
     - balanced
     - cost-focused
     - stability-focused
+  kompassWorkloadsRightsizing:
+    enabled: false
 recommendationsMaker:
   # fullnameOverride: ""
   replicaCount: 1
@@ -135,7 +168,7 @@ recommendationsMaker:
   name: "recommendations-maker"
   image:
     name: "/pod-rightsizing/recommendations-maker"
-    tag: "v0.8.1"
+    tag: "v0.8.2"
     args:
   port: 8088
   resources:
@@ -172,7 +205,7 @@ metricsExporter:
   #     type: RuntimeDefault
   image:
     name: "/pod-rightsizing/metrics-exporter"
-    tag: "v0.8.1"
+    tag: "v0.8.2"
     args:
   resources:
     requests:
@@ -212,7 +245,7 @@ bridgeDataExporter:
   #     type: RuntimeDefault
   image:
     name: "/pod-rightsizing/bridge-data-exporter"
-    tag: "v0.8.1"
+    tag: "v0.8.2"
     args:
   resources:
     requests:
@@ -256,6 +289,31 @@ gpuMetrics:
     limits:
       cpu: 250m
       memory: 96Mi
+jvmMetrics:
+  enabled: false
+  autoDiscovery:
+    enabled: false
+    envSignals:
+      - JAVA_HOME
+      - JAVA_OPTS
+      - JAVA_TOOL_OPTIONS
+      - JDK_JAVA_OPTIONS
+      - MAVEN_HOME
+    additionalEnvSignals: []
+    commandSignals:
+      - java
+      - -jar
+      - .jar
+      - .war
+    additionalCommandSignals: []
+    imageSignals:
+      - openjdk
+      - temurin
+      - corretto
+      - bitnami/java
+      - kafka
+      - jenkins/jenkins
+    additionalImageSignals: []
 podRightsizingConfig:
   name: ""
 rightsizingParamsConfig:

@@ -28,6 +28,13 @@ Create the name of the action-taker
 {{- end }}
 
 {{/*
+Guardian has a fixed name because the rightsizing exclusion refers to it directly.
+*/}}
+{{- define "guardian.name" -}}
+kompass-guardian
+{{- end }}
+
+{{/*
 Create the name of the metrics-exporter
 */}}
 {{- define "metrics-exporter.name" -}}
@@ -53,6 +60,13 @@ Create the name of the kompass rightsizing params/override config map
 */}}
 {{- define "kompass-pod-rightsizing-params-config.name" -}}
 {{- default "kompass-rightsizing-params-config" .Values.rightsizingParamsConfig.name }}
+{{- end }}
+
+{{/*
+Create the name of the Guardian static config map.
+*/}}
+{{- define "kompass-guardian-config.name" -}}
+kompass-guardian-config
 {{- end }}
 
 {{/*
@@ -117,6 +131,13 @@ Create the name of the service account to use for the system
 {{- end }}
 
 {{/*
+Create the name of the service account to use for Guardian.
+*/}}
+{{- define "pod-rightsizing.guardianServiceAccountName" -}}
+{{- default "zesty-kompass-guardian" .Values.guardianServiceAccount.name }}
+{{- end }}
+
+{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
@@ -169,6 +190,26 @@ Get the VictoriaMetrics remote URL, with a default.
 {{- end -}}
 
 {{/*
+Build JVM auto-discovery signal lists.
+The base lists can be replaced through jvmMetrics.autoDiscovery.*Signals, while
+jvmMetrics.autoDiscovery.additional*Signals append customer-specific signals.
+*/}}
+{{- define "pod-rightsizing.jvmAutoDiscovery.envSignals" -}}
+{{- $autoDiscovery := ((.Values.jvmMetrics | default dict).autoDiscovery | default dict) -}}
+{{- join "," (concat ($autoDiscovery.envSignals | default list) ($autoDiscovery.additionalEnvSignals | default list)) -}}
+{{- end -}}
+
+{{- define "pod-rightsizing.jvmAutoDiscovery.commandSignals" -}}
+{{- $autoDiscovery := ((.Values.jvmMetrics | default dict).autoDiscovery | default dict) -}}
+{{- join "," (concat ($autoDiscovery.commandSignals | default list) ($autoDiscovery.additionalCommandSignals | default list)) -}}
+{{- end -}}
+
+{{- define "pod-rightsizing.jvmAutoDiscovery.imageSignals" -}}
+{{- $autoDiscovery := ((.Values.jvmMetrics | default dict).autoDiscovery | default dict) -}}
+{{- join "," (concat ($autoDiscovery.imageSignals | default list) ($autoDiscovery.additionalImageSignals | default list)) -}}
+{{- end -}}
+
+{{/*
 Build the effective pod security context for a component.
 Merge order (later wins): component.podSecurityContext -> global.podSecurityContext
 */}}
@@ -216,22 +257,26 @@ Merge order (later wins): component -> global
 
 {{/*
 Build effective pod labels for a component.
-Merge order (later wins): component.podLabels -> global.podLabels
+Merge order (later wins): component.podLabels -> global.podLabels -> required labels
 */}}
 {{- define "pod-rightsizing.podTemplateLabels" -}}
 {{- $root := .root -}}
 {{- $componentValues := default (dict) .componentValues -}}
-{{- include "pod-rightsizing.mergeMaps.componentGlobal" (dict "component" (default (dict) $componentValues.podLabels) "global" (default (dict) $root.Values.global.podLabels)) -}}
+{{- $podLabels := mergeOverwrite (deepCopy (default (dict) $componentValues.podLabels)) (deepCopy (default (dict) $root.Values.global.podLabels)) -}}
+{{- $_ := set $podLabels "app.kubernetes.io/part-of" "kompass" -}}
+{{- toYaml $podLabels -}}
 {{- end -}}
 
 {{/*
 Build effective workload labels for a component.
-Merge order (later wins): component.workloadLabels -> global.workloadLabels
+Merge order (later wins): component.workloadLabels -> global.workloadLabels -> required labels
 */}}
 {{- define "pod-rightsizing.workloadLabels" -}}
 {{- $root := .root -}}
 {{- $componentValues := default (dict) .componentValues -}}
-{{- include "pod-rightsizing.mergeMaps.componentGlobal" (dict "component" (default (dict) $componentValues.workloadLabels) "global" (default (dict) $root.Values.global.workloadLabels)) -}}
+{{- $workloadLabels := mergeOverwrite (deepCopy (default (dict) $componentValues.workloadLabels)) (deepCopy (default (dict) $root.Values.global.workloadLabels)) -}}
+{{- $_ := set $workloadLabels "app.kubernetes.io/part-of" "kompass" -}}
+{{- toYaml $workloadLabels -}}
 {{- end -}}
 
 {{/*
@@ -488,6 +533,23 @@ Action Taker resources with minimum values enforced
 */}}
 {{- define "pod-rightsizing.actionTaker.resources" -}}
 {{- $resources := .Values.actionTaker.resources | default dict -}}
+{{- $userCpu := $resources.requests.cpu | default "100m" -}}
+{{- $userMemory := $resources.requests.memory | default "128Mi" -}}
+resources:
+  requests:
+    cpu: {{ include "pod-rightsizing.enforceMin" (dict "kind" "cpu" "user" $userCpu "min" "100m") }}
+    memory: {{ include "pod-rightsizing.enforceMin" (dict "kind" "memory" "user" $userMemory "min" "128Mi") }}
+{{- with $resources.limits }}
+  limits:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Guardian resources with minimum values enforced
+*/}}
+{{- define "pod-rightsizing.guardian.resources" -}}
+{{- $resources := .Values.guardian.resources | default dict -}}
 {{- $userCpu := $resources.requests.cpu | default "100m" -}}
 {{- $userMemory := $resources.requests.memory | default "128Mi" -}}
 resources:

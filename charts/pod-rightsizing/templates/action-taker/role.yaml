@@ -176,6 +176,7 @@ rules:
 - apiGroups:
   - kompass.zesty.co
   resources:
+  - clustervirtualworkloads
   - virtualworkloads
   verbs:
   - create
@@ -188,12 +189,14 @@ rules:
 - apiGroups:
   - kompass.zesty.co
   resources:
+  - clustervirtualworkloads/finalizers
   - virtualworkloads/finalizers
   verbs:
   - update
 - apiGroups:
   - kompass.zesty.co
   resources:
+  - clustervirtualworkloads/status
   - virtualworkloads/status
   verbs:
   - get
@@ -203,6 +206,7 @@ rules:
   - rightsizing.kompass.zesty.co
   resources:
   - actions
+  - clusteractions
   - initialvalues
   - policies
   verbs:
@@ -217,6 +221,7 @@ rules:
   - rightsizing.kompass.zesty.co
   resources:
   - actions/finalizers
+  - clusteractions/finalizers
   - policies/finalizers
   verbs:
   - delete
@@ -226,6 +231,7 @@ rules:
   - rightsizing.kompass.zesty.co
   resources:
   - actions/status
+  - clusteractions/status
   - policies/status
   verbs:
   - get
